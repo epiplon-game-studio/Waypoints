@@ -2,3 +2,5 @@ Library
 obj
 Packages
 Temp
+*.csproj
+*.sln

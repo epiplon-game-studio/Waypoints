@@ -1,0 +1,12 @@
+{
+    "name": "Nodegraph-editor",
+    "references": [
+        "Nodegraph"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}
