@@ -105,7 +105,13 @@ namespace Nodegraph
                             }
                             else return false;
                         })
-                        .Select(n => graph.AllNodes.IndexOf(n));
+                        .Select(n =>
+                        {
+                            var connection = new Connection();
+                            connection.Index = graph.AllNodes.IndexOf(n);
+                            connection.Cost = Vector3.Distance(graph.AllNodes[i].Position, n.Position);
+                            return connection;
+                        });
 
                     graph.AllNodes[i].ConnectedNodes = connectedNodes.ToList();
                 }
@@ -113,6 +119,12 @@ namespace Nodegraph
             }
         }
 
+        /// <summary>
+        /// Tries to find the shortest path to the target
+        /// </summary>
+        /// <param name="start">Starting position</param>
+        /// <param name="end">Final position</param>
+        /// <returns>Path</returns>
         public List<Node> QueryPath(Vector3 start, Vector3 end)
         {
             if (graph == null || graph.AllNodes.Count == 0)
@@ -139,14 +151,22 @@ namespace Nodegraph
             return path;
         }
 
+        /// <summary>
+        /// Executes the pathfinding recursive search function
+        /// </summary>
+        /// <param name="node"></param>
+        /// <param name="lastNode"></param>
+        /// <param name="path"></param>
+        /// <param name="visited"></param>
+        /// <returns></returns>
         private List<Node> Search(Node node, Node lastNode, ref List<Node> path, ref List<Node> visited)
         {
             path.Add(node);
             visited.Add(node);
 
-            foreach (var index in node.ConnectedNodes)
+            foreach (var connection in node.ConnectedNodes.OrderBy(c => c.Cost))
             {
-                Node child = graph.GetNode(index);
+                Node child = graph.GetNode(connection.Index);
 
                 // don't let it go to the same path
                 if (visited.Contains(child))
@@ -160,8 +180,7 @@ namespace Nodegraph
 
             return path;
         }
-
-
+        
         #endregion
 
 #if UNITY_EDITOR
@@ -194,7 +213,7 @@ namespace Nodegraph
                         Gizmos.DrawCube(n.Position, Vector3.one * m_nodeSize);
                         foreach (var c in n.ConnectedNodes)
                         {
-                            var node = graph.GetNode(c);
+                            var node = graph.GetNode(c.Index);
                             if (node != null)
                                 Gizmos.DrawLine(n.Position, node.Position);
 
