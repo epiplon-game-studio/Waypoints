@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Linq;
 using System.Collections.Generic;
-using System;
+using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -30,8 +31,12 @@ namespace Nodegraph
         static Nodegraph _current;
 
         public Graph graph;
+
+        [Header("Node Settings")]
         public float m_nodeElevation = 1f;
         public float m_nodeMaximumDistance = 3f;
+        [Tooltip("For removing nodes")]
+        public float m_brushRadius = 3f;
 
         [Header("Editor")]
         public LayerMask solidLayerMask;
@@ -49,8 +54,8 @@ namespace Nodegraph
             if (graph.AllNodes == null)
                 graph.AllNodes = new List<Node>();
 
-
-            graph.AllNodes.Add(new Node(position + Vector3.up * m_nodeElevation));
+            var newNode = new Node(position + Vector3.up * m_nodeElevation);
+            graph.AllNodes.Add(newNode);
         }
 
         public void ClearNodes()
@@ -58,29 +63,42 @@ namespace Nodegraph
             graph.AllNodes.Clear();
         }
 
+        public void RemoveNodes(Vector3 center)
+        {
+            if (graph == null)
+            {
+                Debug.LogError("No Graph is set on the " + gameObject.name + " object.");
+                return;
+            }
+
+            if (graph.AllNodes.Count == 0)
+            {
+                Debug.LogWarning("No nodes to remove.");
+                return;
+            }
+
+            graph.AllNodes.RemoveAll(n => Vector3.Distance(n.Position, center) <= m_brushRadius);
+        }
+
         public void RebuildNodegraph()
         {
             for (int i = 0; i < graph.AllNodes.Count; i++)
             {
-                for (int j = 0; j < graph.AllNodes.Count; j++)
-                {
-                    if (graph.AllNodes[i] == graph.AllNodes[j])
-                        continue;
+                var connectedNodes = graph.AllNodes.Where(n => graph.AllNodes[i] != n)
+                    .Where(n => Vector3.Distance(graph.AllNodes[i].Position, n.Position) < m_nodeMaximumDistance)
+                    .Select(n => graph.AllNodes.IndexOf(n));
 
-                    var distance = Vector3.Distance(graph.AllNodes[i].Position, graph.AllNodes[j].Position);
-                    if (distance < m_nodeMaximumDistance)
-                    {
-                        graph.AllNodes[i].ConnectedNodes.Add(graph.AllNodes[j]);
-                    }
-                }
+                graph.AllNodes[i].ConnectedNodes = connectedNodes.ToList();
             }
         }
+
+
 
         #endregion
 
 #if UNITY_EDITOR
         [HideInInspector]
-        public bool isPlacingNode = false;
+        public NodegraphState State = NodegraphState.None;
 
         private void OnDrawGizmosSelected()
         {
@@ -94,7 +112,10 @@ namespace Nodegraph
                         Gizmos.DrawCube(n.Position, Vector3.one / 4f);
                         foreach (var c in n.ConnectedNodes)
                         {
-                            Gizmos.DrawLine(n.Position, c.Position);
+                            var node = graph.GetNode(c);
+                            if (node != null)
+                                Gizmos.DrawLine(n.Position, node.Position);
+
                         }
                     }
                 }
@@ -102,5 +123,12 @@ namespace Nodegraph
             }
         }
 #endif
+    }
+
+    public enum NodegraphState
+    {
+        None,
+        Placing,
+        Removing
     }
 }

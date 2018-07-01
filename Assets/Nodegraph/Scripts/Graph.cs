@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Linq;
+using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace Nodegraph
@@ -8,5 +11,10 @@ namespace Nodegraph
     {
         [HideInInspector]
         public List<Node> AllNodes;
+
+        public Node GetNode(int index)
+        {
+            return AllNodes.ElementAtOrDefault(index);
+        }
     }
 }

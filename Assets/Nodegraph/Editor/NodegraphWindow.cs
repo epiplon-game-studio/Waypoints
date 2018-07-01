@@ -17,20 +17,20 @@ namespace Nodegraph.Editor
 
         private void OnGUI()
         {
-            Rect rect = EditorGUILayout.GetControlRect();
-            rect.y += EditorGUIUtility.singleLineHeight;
-            if (GUI.Button(rect, "Rebuild Graph"))
-            {
-                Debug.Log("Graph is rebuilding.");
-            }
+            //Rect rect = EditorGUILayout.GetControlRect();
+            //rect.y += EditorGUIUtility.singleLineHeight;
+            //if (GUI.Button(rect, "Rebuild Graph"))
+            //{
+            //    Debug.Log("Graph is rebuilding.");
+            //}
 
-            rect.y += EditorGUIUtility.singleLineHeight;
-            string btnLabel = Nodegraph.Current.isPlacingNode ? "Disable Node Placing" : "Enable Node Placing";
+            //rect.y += EditorGUIUtility.singleLineHeight;
+            //string btnLabel = Nodegraph.Current.isPlacingNode ? "Disable Node Placing" : "Enable Node Placing";
 
-            if (GUI.Button(rect, btnLabel))
-            {
-                Nodegraph.Current.isPlacingNode = !Nodegraph.Current.isPlacingNode;
-            }
+            //if (GUI.Button(rect, btnLabel))
+            //{
+            //    Nodegraph.Current.isPlacingNode = !Nodegraph.Current.isPlacingNode;
+            //}
    
         }
     }

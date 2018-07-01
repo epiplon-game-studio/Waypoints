@@ -11,4 +11,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1513459d8bb822949ac691e695ccc25b, type: 3}
   m_Name: SampleGraph
   m_EditorClassIdentifier: 
-  AllNodes: []
+  AllNodes:
+  - Position: {x: 6.0397925, y: 2.2, z: -1.8487506}
+    ConnectedNodes: 010000000200000003000000040000000500000006000000
+  - Position: {x: 7.107646, y: 2.2, z: -0.64230096}
+    ConnectedNodes: 000000000200000005000000
+  - Position: {x: 7.940962, y: 2.2, z: -2.7660851}
+    ConnectedNodes: 0000000001000000
+  - Position: {x: 4.085911, y: 2.2, z: -1.8291414}
+    ConnectedNodes: 00000000040000000500000006000000
+  - Position: {x: 3.9312413, y: 2.2, z: -1.3544457}
+    ConnectedNodes: 000000000300000005000000
+  - Position: {x: 5.497751, y: 2.2, z: -0.24881315}
+    ConnectedNodes: 00000000010000000300000004000000
+  - Position: {x: 4.877435, y: 2.2, z: -4.2836776}
+    ConnectedNodes: 000000000300000007000000
+  - Position: {x: 6.749031, y: 2.2, z: -5.9645433}
+    ConnectedNodes: 06000000
