@@ -12,19 +12,35 @@ MonoBehaviour:
   m_Name: SampleGraph
   m_EditorClassIdentifier: 
   AllNodes:
-  - Position: {x: 8.363183, y: 2.3, z: -6.396628}
-    ConnectedNodes: 0200000007000000
-  - Position: {x: -1.4867527, y: 3.2141151, z: -1.6138084}
-    ConnectedNodes: 0200000003000000040000000500000006000000
-  - Position: {x: 7.695543, y: 2.3, z: -1.8087964}
-    ConnectedNodes: 0000000001000000050000000600000007000000
-  - Position: {x: 2.3367767, y: 2.3, z: -6.1474166}
-    ConnectedNodes: 01000000040000000500000006000000
-  - Position: {x: -2.1597664, y: 3.481064, z: -6.341995}
-    ConnectedNodes: 01000000030000000500000006000000
-  - Position: {x: 0.33425832, y: 2.4918163, z: -3.9365811}
-    ConnectedNodes: 010000000200000003000000040000000600000007000000
-  - Position: {x: 4.1653285, y: 2.3, z: 0.12069017}
-    ConnectedNodes: 010000000200000003000000040000000500000007000000
-  - Position: {x: 9.108823, y: 2.3, z: 0.092133045}
-    ConnectedNodes: 00000000020000000500000006000000
+  - Position: {x: 6.3796225, y: 3.7317035, z: -6.4221067}
+    ConnectedNodes:
+    - StartNodeIndex: 0
+      EndNodeIndex: 3
+      Cost: 1.2703301
+      Type: 1
+  - Position: {x: 8.705224, y: 2.3, z: -4.802714}
+    ConnectedNodes:
+    - StartNodeIndex: 1
+      EndNodeIndex: 2
+      Cost: 2.1161082
+      Type: 1
+    - StartNodeIndex: 1
+      EndNodeIndex: 3
+      Cost: 2.2810388
+      Type: 1
+  - Position: {x: 7.938205, y: 2.3, z: -6.7749195}
+    ConnectedNodes:
+    - StartNodeIndex: 2
+      EndNodeIndex: 1
+      Cost: 2.1161082
+      Type: 1
+  - Position: {x: 7.0054426, y: 3.7317035, z: -5.316626}
+    ConnectedNodes:
+    - StartNodeIndex: 3
+      EndNodeIndex: 0
+      Cost: 1.2703301
+      Type: 1
+    - StartNodeIndex: 3
+      EndNodeIndex: 1
+      Cost: 2.2810388
+      Type: 1

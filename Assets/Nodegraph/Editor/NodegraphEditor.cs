@@ -10,15 +10,21 @@ namespace Nodegraph.Editor
         GUIStyle clearBtn;
 
         SerializedProperty graphProperty;
+        SerializedProperty movingObstacleTag;
+        Nodegraph nodegraph;
 
         private void OnEnable()
         {
             graphProperty = serializedObject.FindProperty("graph");
+            movingObstacleTag = serializedObject.FindProperty("movingObstacleTag");
+            nodegraph = (Nodegraph)target;
         }
 
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
+
+            movingObstacleTag.stringValue = EditorGUILayout.TagField("Obstacle Tag", movingObstacleTag.stringValue);
 
             if (clearBtn == null)
             {
@@ -31,36 +37,36 @@ namespace Nodegraph.Editor
             {
                 EditorGUILayout.Space();
 
-                EditorGUILayout.LabelField("Current Action: " + Nodegraph.Current.State);
+                EditorGUILayout.LabelField("Current Action: " + nodegraph.State);
 
                 GUI.contentColor = Color.white;
                 Rect rect = EditorGUILayout.GetControlRect();
                 if (GUI.Button(rect, "Rebuild Graph"))
                 {
-                    Nodegraph.Current.RebuildNodegraph();
+                    nodegraph.RebuildNodegraph();
                     SceneView.RepaintAll();
                 }
 
-                switch (Nodegraph.Current.State)
+                switch (nodegraph.State)
                 {
                     case NodegraphState.None:
                         rect = EditorGUILayout.GetControlRect();
                         if (GUI.Button(rect, "Place Nodes"))
                         {
-                            Nodegraph.Current.State = NodegraphState.Placing;
+                            nodegraph.State = NodegraphState.Placing;
                         }
 
                         rect = EditorGUILayout.GetControlRect();
                         if (GUI.Button(rect, "Remove Nodes"))
                         {
-                            Nodegraph.Current.State = NodegraphState.Removing;
+                            nodegraph.State = NodegraphState.Removing;
                         }
 
                         rect = EditorGUILayout.GetControlRect();
                         GUI.contentColor = Color.red;
                         if (GUI.Button(rect, "Clear Nodes", clearBtn))
                         {
-                            Nodegraph.Current.ClearNodes();
+                            nodegraph.ClearNodes();
                             SceneView.RepaintAll();
                         }
                         break;
@@ -69,7 +75,7 @@ namespace Nodegraph.Editor
                         rect = EditorGUILayout.GetControlRect();
                         if (GUI.Button(rect, "Cancel Actions"))
                         {
-                            Nodegraph.Current.State = NodegraphState.None;
+                            nodegraph.State = NodegraphState.None;
                             EditorUtility.SetDirty(graphProperty.objectReferenceValue);
                         }
                         break;
@@ -81,7 +87,7 @@ namespace Nodegraph.Editor
 
         private void OnDisable()
         {
-            Nodegraph.Current.State = NodegraphState.None;
+            nodegraph.State = NodegraphState.None;
         }
 
         private void OnSceneGUI()
@@ -89,7 +95,7 @@ namespace Nodegraph.Editor
             if (EditorWindow.mouseOverWindow == null)
                 return;
 
-            switch (Nodegraph.Current.State)
+            switch (nodegraph.State)
             {
                 case NodegraphState.Placing:
                     PlacingNodes();
@@ -108,7 +114,7 @@ namespace Nodegraph.Editor
 
             RaycastHit hitInfo;
             Ray click = HandleUtility.GUIPointToWorldRay(Event.current.mousePosition);
-            if (Physics.Raycast(click, out hitInfo, 1000, Nodegraph.Current.solidLayerMask))
+            if (Physics.Raycast(click, out hitInfo, 1000, nodegraph.solidLayerMask))
             {
                 Handles.color = Color.yellow;
                 Handles.DrawWireCube(hitInfo.point, Vector3.one / 4f);
@@ -124,9 +130,9 @@ namespace Nodegraph.Editor
                         // grab mouse down
                         if (Event.current.button == 0)
                         {
-                            if (Physics.Raycast(click, out hitInfo, 1000, Nodegraph.Current.solidLayerMask))
+                            if (Physics.Raycast(click, out hitInfo, 1000, nodegraph.solidLayerMask))
                             {
-                                Nodegraph.Current.AddNode(hitInfo.point);
+                                nodegraph.AddNode(hitInfo.point);
                             }
 
                             Event.current.Use();
@@ -143,11 +149,11 @@ namespace Nodegraph.Editor
 
             RaycastHit hitInfo;
             Ray click = HandleUtility.GUIPointToWorldRay(Event.current.mousePosition);
-            if (Physics.Raycast(click, out hitInfo, 1000, Nodegraph.Current.solidLayerMask))
+            if (Physics.Raycast(click, out hitInfo, 1000, nodegraph.solidLayerMask))
             {
                 Handles.color = Color.yellow;
-                Handles.DrawWireDisc(hitInfo.point, Vector3.up, Nodegraph.Current.m_brushRadius);
-                Handles.DrawWireDisc(hitInfo.point, Vector3.right, Nodegraph.Current.m_brushRadius);
+                Handles.DrawWireDisc(hitInfo.point, Vector3.up, nodegraph.m_brushRadius);
+                Handles.DrawWireDisc(hitInfo.point, Vector3.right, nodegraph.m_brushRadius);
                 SceneView.RepaintAll();
             }
 
@@ -160,7 +166,7 @@ namespace Nodegraph.Editor
                         // grab mouse down
                         if (Event.current.button == 0)
                         {
-                            Nodegraph.Current.RemoveNodes(hitInfo.point);
+                            nodegraph.RemoveNodes(hitInfo.point);
                             Event.current.Use();
                         }
                     }
