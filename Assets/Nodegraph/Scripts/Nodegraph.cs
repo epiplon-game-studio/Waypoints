@@ -11,24 +11,6 @@ namespace Nodegraph
     [ExecuteInEditMode]
     public class Nodegraph : MonoBehaviour
     {
-        //public static Nodegraph Current
-        //{
-        //    get
-        //    {
-        //        if (_current == null)
-        //        {
-        //            _current = FindObjectOfType<Nodegraph>();
-        //            if (_current == null)
-        //            {
-        //                var nodegraph = new GameObject("NODEGRAPH");
-        //                _current = nodegraph.AddComponent<Nodegraph>();
-        //            }
-        //        }
-
-        //        return _current;
-        //    }
-        //}
-        //static Nodegraph _current;
         static List<Nodegraph> graphs = new List<Nodegraph>();
 
         public static Nodegraph Get(string label)
@@ -107,6 +89,11 @@ namespace Nodegraph
         public Node GetNode(int index)
         {
             return graph.GetNode(index);
+        }
+
+        public List<Node> GetNodes()
+        {
+            return graph.AllNodes;
         }
 
         RaycastHit[] hits;
@@ -293,6 +280,40 @@ namespace Nodegraph
     {
         None,
         Placing,
+        Editing,
         Removing
     }
+
+#if UNITY_EDITOR
+    [InitializeOnLoad]
+    static class NodegraphHierarchy
+    {
+        static Texture icon;
+        static GUIStyle iconStyle;
+
+        static NodegraphHierarchy()
+        {
+            icon = Resources.Load<Texture>("nodegraph-icon");
+            if (iconStyle == null)
+            {
+                iconStyle = new GUIStyle();
+                iconStyle.alignment = TextAnchor.MiddleRight;
+            }
+
+            EditorApplication.hierarchyWindowItemOnGUI += HighlightItems;
+        }
+
+        private static void HighlightItems(int instanceID, Rect selectionRect)
+        {
+            var target = EditorUtility.InstanceIDToObject(instanceID) as GameObject;
+            if (target == null)
+                return;
+            
+            if (target.GetComponent<Nodegraph>() != null)
+            {
+                GUI.Label(selectionRect, new GUIContent(icon), iconStyle);
+            }
+        }
+    }
+#endif
 }

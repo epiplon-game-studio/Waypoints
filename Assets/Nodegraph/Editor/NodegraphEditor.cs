@@ -8,16 +8,30 @@ namespace Nodegraph.Editor
     public class NodegraphEditor : UnityEditor.Editor
     {
         GUIStyle clearBtn;
+        Texture gearsTex, plusTex, penTex, removeTex, clearTex, cancelTex;
 
         SerializedProperty graphProperty;
         SerializedProperty movingObstacleTag;
         Nodegraph nodegraph;
+
+        Node currentNode = null;
+        int selectedIndex = -1;
+
+        bool showNodes = true;
+        float labelSize = 40f;
 
         private void OnEnable()
         {
             graphProperty = serializedObject.FindProperty("graph");
             movingObstacleTag = serializedObject.FindProperty("movingObstacleTag");
             nodegraph = (Nodegraph)target;
+
+            gearsTex = Resources.Load<Texture>("gears");
+            plusTex = Resources.Load<Texture>("plus");
+            penTex = Resources.Load<Texture>("pen");
+            removeTex = Resources.Load<Texture>("remove");
+            clearTex = Resources.Load<Texture>("clear");
+            cancelTex = Resources.Load<Texture>("cancel");
         }
 
         public override void OnInspectorGUI()
@@ -40,8 +54,9 @@ namespace Nodegraph.Editor
                 EditorGUILayout.LabelField("Current Action: " + nodegraph.State);
 
                 GUI.contentColor = Color.white;
-                Rect rect = EditorGUILayout.GetControlRect();
-                if (GUI.Button(rect, "Rebuild Graph"))
+                Rect rect = EditorGUILayout.GetControlRect(false, 50);
+                var offset = rect.width /= 5;
+                if (GUI.Button(rect, new GUIContent(gearsTex, "Rebuild Graph")))
                 {
                     nodegraph.RebuildNodegraph();
                     SceneView.RepaintAll();
@@ -50,50 +65,81 @@ namespace Nodegraph.Editor
                 switch (nodegraph.State)
                 {
                     case NodegraphState.None:
-                        rect = EditorGUILayout.GetControlRect();
-                        if (GUI.Button(rect, "Place Nodes"))
+                        rect.x += offset;
+                        if (GUI.Button(rect, new GUIContent(plusTex, "Place Nodes")))
                         {
                             nodegraph.State = NodegraphState.Placing;
                         }
 
-                        rect = EditorGUILayout.GetControlRect();
-                        if (GUI.Button(rect, "Remove Nodes"))
+                        rect.x += offset;
+                        if (GUI.Button(rect, new GUIContent(penTex, "Edit Nodes")))
+                        {
+                            nodegraph.State = NodegraphState.Editing;
+                        }
+
+                        rect.x += offset;
+                        if (GUI.Button(rect, new GUIContent(removeTex, "Remove Nodes")))
                         {
                             nodegraph.State = NodegraphState.Removing;
                         }
 
-                        rect = EditorGUILayout.GetControlRect();
-                        GUI.contentColor = Color.red;
-                        if (GUI.Button(rect, "Clear Nodes", clearBtn))
+                        rect.x += offset;
+                        if (GUI.Button(rect, new GUIContent(clearTex, "Clear Nodes"), clearBtn))
                         {
                             nodegraph.ClearNodes();
                             SceneView.RepaintAll();
+
+                            currentNode = null;
+                            selectedIndex = -1;
                         }
                         break;
                     case NodegraphState.Placing:
                     case NodegraphState.Removing:
-                        rect = EditorGUILayout.GetControlRect();
-                        if (GUI.Button(rect, "Cancel Actions"))
+                    case NodegraphState.Editing:
+                        rect = EditorGUILayout.GetControlRect(false, 50);
+                        if (GUI.Button(rect, new GUIContent("Cancel Actions", cancelTex)))
                         {
                             nodegraph.State = NodegraphState.None;
                             EditorUtility.SetDirty(graphProperty.objectReferenceValue);
+
+                            currentNode = null;
+                            selectedIndex = -1;
                         }
                         break;
                 }
+
+                // node list
+                EditorGUILayout.Space();
+                showNodes = EditorGUILayout.Foldout(showNodes, "Node list");
+                if (showNodes)
+                {
+                    var nodelist = nodegraph.GetNodes();
+
+                    for (int i = 0; i < nodelist.Count; i++)
+                    {
+                        rect = EditorGUILayout.GetControlRect();
+
+                        Color original = GUI.color;
+                        GUI.color = selectedIndex == i ? Color.cyan : Color.white;
+
+                        nodelist[i].Position = EditorGUI.Vector3Field(rect, string.Format("#{0}", i), nodelist[i].Position);
+                        GUI.color = original;
+                    }
+
+                    SceneView.RepaintAll();
+                }
+
                 serializedObject.ApplyModifiedPropertiesWithoutUndo();
             }
 
-        }
-
-        private void OnDisable()
-        {
-            nodegraph.State = NodegraphState.None;
         }
 
         private void OnSceneGUI()
         {
             if (EditorWindow.mouseOverWindow == null)
                 return;
+
+            EditorGUI.BeginChangeCheck();
 
             switch (nodegraph.State)
             {
@@ -103,8 +149,31 @@ namespace Nodegraph.Editor
                 case NodegraphState.Removing:
                     RemovingNodes();
                     break;
+                case NodegraphState.Editing:
+                    var nodelist = nodegraph.GetNodes();
+                    for (int i = 0; i < nodelist.Count; i++)
+                    {
+                        int controlID = GUIUtility.GetControlID(FocusType.Keyboard);
+                        if (currentNode == nodelist[i])
+                            currentNode.Position = Handles.PositionHandle(currentNode.Position, Quaternion.identity);
+                        else
+                            Handles.CubeHandleCap(controlID, nodelist[i].Position, Quaternion.identity, 2f, EventType.Layout);
+
+                        if (HandleUtility.nearestControl == controlID && Event.current.GetTypeForControl(controlID) == EventType.MouseDown)
+                        {
+                            currentNode = nodelist[i];
+                        }
+                    }
+
+                    break;
             }
 
+            EditorGUI.EndChangeCheck();
+        }
+
+        private void OnDisable()
+        {
+            nodegraph.State = NodegraphState.None;
         }
 
         void PlacingNodes()
