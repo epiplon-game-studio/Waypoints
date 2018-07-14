@@ -8,7 +8,7 @@ namespace Nodegraph.Editor
     public class NodegraphEditor : UnityEditor.Editor
     {
         GUIStyle clearBtn;
-        Texture gearsTex, plusTex, penTex, removeTex, clearTex, cancelTex;
+        Texture gearsTex, plusTex, penTex, removeTex, clearTex, cancelTex, bulkTex, confirmTex;
 
         SerializedProperty graphProperty;
         SerializedProperty movingObstacleTag;
@@ -19,6 +19,8 @@ namespace Nodegraph.Editor
 
         bool showNodes = true;
         float labelSize = 40f;
+
+        BulkControl bulkControl = null;
 
         private void OnEnable()
         {
@@ -32,6 +34,8 @@ namespace Nodegraph.Editor
             removeTex = Resources.Load<Texture>("remove");
             clearTex = Resources.Load<Texture>("clear");
             cancelTex = Resources.Load<Texture>("cancel");
+            bulkTex = Resources.Load<Texture>("bulk");
+            confirmTex = Resources.Load<Texture>("confirm");
         }
 
         public override void OnInspectorGUI()
@@ -55,20 +59,29 @@ namespace Nodegraph.Editor
 
                 GUI.contentColor = Color.white;
                 Rect rect = EditorGUILayout.GetControlRect(false, 50);
-                var offset = rect.width /= 5;
-                if (GUI.Button(rect, new GUIContent(gearsTex, "Rebuild Graph")))
-                {
-                    nodegraph.RebuildNodegraph();
-                    SceneView.RepaintAll();
-                }
+                var offset = rect.width /= 6;
 
                 switch (nodegraph.State)
                 {
                     case NodegraphState.None:
+                        if (GUI.Button(rect, new GUIContent(gearsTex, "Rebuild Graph")))
+                        {
+                            nodegraph.RebuildNodegraph();
+                            SceneView.RepaintAll();
+                        }
+
                         rect.x += offset;
                         if (GUI.Button(rect, new GUIContent(plusTex, "Place Nodes")))
                         {
                             nodegraph.State = NodegraphState.Placing;
+                        }
+
+                        rect.x += offset;
+                        if (GUI.Button(rect, new GUIContent(bulkTex, "Bulk Node Placement")))
+                        {
+                            nodegraph.State = NodegraphState.Bulk;
+                            var position = SceneView.lastActiveSceneView.camera.transform.position + SceneView.lastActiveSceneView.camera.transform.forward * nodegraph.m_bulkSpawnDistance;
+                            bulkControl = new BulkControl(position);
                         }
 
                         rect.x += offset;
@@ -93,6 +106,31 @@ namespace Nodegraph.Editor
                             selectedIndex = -1;
                         }
                         break;
+                    case NodegraphState.Bulk:
+                        if (GUI.Button(rect, new GUIContent(confirmTex, "Create Bulk Nodes")))
+                        {
+                            Vector3Int extension = bulkControl.Extension;
+
+                            int controlID = GUIUtility.GetControlID(FocusType.Keyboard);
+                            Handles.color = Color.green;
+                            for (int x = -extension.x; x < extension.x; x += nodegraph.m_bulkNodeDistanceGap)
+                            {
+                                for (int y = -extension.y; y < extension.y; y += nodegraph.m_bulkNodeDistanceGap)
+                                {
+                                    for (int z = -extension.z; z < extension.z; z += nodegraph.m_bulkNodeDistanceGap)
+                                    {
+                                        nodegraph.AddNode(new Vector3(x, y, z) + bulkControl.Position);
+                                    }
+                                }
+                            }
+
+                            nodegraph.State = NodegraphState.None;
+                            EditorUtility.SetDirty(graphProperty.objectReferenceValue);
+
+                            currentNode = null;
+                            selectedIndex = -1;
+                        }
+                        goto case NodegraphState.Placing;
                     case NodegraphState.Placing:
                     case NodegraphState.Removing:
                     case NodegraphState.Editing:
@@ -145,6 +183,9 @@ namespace Nodegraph.Editor
             {
                 case NodegraphState.Placing:
                     PlacingNodes();
+                    break;
+                case NodegraphState.Bulk:
+                    BulkNodes();
                     break;
                 case NodegraphState.Removing:
                     RemovingNodes();
@@ -241,6 +282,34 @@ namespace Nodegraph.Editor
                     }
                     break;
             }
+        }
+
+        void BulkNodes()
+        {
+            EditorGUI.BeginChangeCheck();
+            float handleSize = HandleUtility.GetHandleSize(bulkControl.Position);
+            bulkControl.Position = Handles.PositionHandle(bulkControl.Position, Quaternion.identity);
+            bulkControl.Scale = Handles.ScaleHandle(bulkControl.Scale, bulkControl.Position, Quaternion.identity, handleSize + 1);
+            Handles.color = Color.cyan;
+            Handles.DrawWireCube(bulkControl.Position, bulkControl.Scale);
+
+            Vector3Int extension = bulkControl.Extension;
+
+            int controlID = GUIUtility.GetControlID(FocusType.Keyboard);
+            Handles.color = Color.green;
+            for (int x = -extension.x; x < extension.x; x += nodegraph.m_bulkNodeDistanceGap)
+            {
+                for (int y = -extension.y; y < extension.y; y += nodegraph.m_bulkNodeDistanceGap)
+                {
+                    for (int z = -extension.z; z < extension.z; z += nodegraph.m_bulkNodeDistanceGap)
+                    {
+                        Handles.CubeHandleCap(controlID, new Vector3(x, y, z) + bulkControl.Position, Quaternion.identity, 1f, EventType.Repaint);
+                    }
+                }
+            }
+
+            EditorGUI.EndChangeCheck();
+            SceneView.RepaintAll();
         }
     }
 }

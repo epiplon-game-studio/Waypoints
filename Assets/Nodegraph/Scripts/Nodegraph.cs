@@ -32,6 +32,12 @@ namespace Nodegraph
         public Color m_nodeColor = Color.cyan;
         public Color m_staticConnection = Color.cyan;
         public Color m_dynamicConnection = Color.yellow;
+
+        [Space]
+        public int m_bulkNodeDistanceGap = 3;
+        public float m_bulkSpawnDistance = 4;
+
+        [Space]
         public float m_nodeUpOffset = 0.3f;
         public bool m_alwaysShowNodes;
         public LayerMask solidLayerMask;
@@ -96,16 +102,22 @@ namespace Nodegraph
             return graph.AllNodes;
         }
 
-        RaycastHit[] hits;
         public void RebuildNodegraph()
         {
             bool hitBackfaces = Physics.queriesHitBackfaces;
             Physics.queriesHitBackfaces = true;
-            if (hits == null)
-                hits = new RaycastHit[8];
+            RaycastHit[] hits = new RaycastHit[8];
 
             for (int i = 0; i < graph.AllNodes.Count; i++)
             {
+                var overlapped = Physics.OverlapSphere(graph.AllNodes[i].Position, m_nodeSize, solidLayerMask);
+                if (overlapped.Count() > 0)
+                {
+                    graph.AllNodes[i].ConnectedNodes.Clear();
+                    Debug.Log("Overlapped");
+                    continue;
+                }
+
                 var connectedNodes = graph.AllNodes.Where(n => graph.AllNodes[i] != n)
                     .Where(n => Vector3.Distance(graph.AllNodes[i].Position, n.Position) < m_nodeMaximumDistance)
                     .Select(n =>
@@ -142,8 +154,6 @@ namespace Nodegraph
                     .Where(c => c.Type != ConnectionType.Null);
 
                 graph.AllNodes[i].ConnectedNodes = connectedNodes.ToList();
-
-
             }
 
             Physics.queriesHitBackfaces = hitBackfaces;
@@ -279,6 +289,7 @@ namespace Nodegraph
     public enum NodegraphState
     {
         None,
+        Bulk,
         Placing,
         Editing,
         Removing
@@ -308,7 +319,7 @@ namespace Nodegraph
             var target = EditorUtility.InstanceIDToObject(instanceID) as GameObject;
             if (target == null)
                 return;
-            
+
             if (target.GetComponent<Nodegraph>() != null)
             {
                 GUI.Label(selectionRect, new GUIContent(icon), iconStyle);
