@@ -43,7 +43,7 @@ namespace Nodegraph
         public LayerMask solidLayerMask;
         [HideInInspector] public string movingObstacleTag;
 
-        private void Start()
+        private void Awake()
         {
             graphs.Add(this);
         }
@@ -208,7 +208,7 @@ namespace Nodegraph
             path.Add(connection);
             visited.Add(node);
 
-            foreach (var childConnect in node.ConnectedNodes.OrderBy(c => c.Cost))
+            foreach (var childConnect in node.ConnectedNodes.OrderBy(c => c.Cost + heuristic(c.EndNodeIndex, endNode)))
             {
                 Node child = graph.GetNode(childConnect.EndNodeIndex);
 
@@ -225,6 +225,33 @@ namespace Nodegraph
 
             return path;
         }
+
+        private float heuristic(int nodeIndex, Node goal)
+        {
+            return Vector3.Distance(goal.Position, GetNode(nodeIndex).Position);
+        }
+
+        //public List<Connection> AstarSearch(Node start, Node goal)
+        //{
+        //    Queue<Node> frontier = new Queue<Node>();
+        //    frontier.Enqueue(start);
+
+        //    while (frontier.Count > 0)
+        //    {
+        //        var current = frontier.Dequeue();
+
+        //        if (current == goal)
+        //            break;
+
+        //        foreach (var next in current.ConnectedNodes)
+        //        {
+        //            var nextNode = GetNode(next.EndNodeIndex);
+        //        }
+        //    }
+
+
+        //    return null;
+        //}
 
         #endregion
 
