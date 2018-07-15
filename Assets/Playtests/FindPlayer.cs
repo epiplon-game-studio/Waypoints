@@ -1,14 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Nodegraph;
+using Waypoints;
 using System.Linq;
 
 public class FindPlayer : MonoBehaviour
 {
     GameObject target;
     List<Connection> Path;
-    Nodegraph.Nodegraph debug;
+    WaypointGraph debug;
     public float m_repathTime = 1f;
     float lastRepath;
     int pathIndex = 0;
@@ -18,7 +18,7 @@ public class FindPlayer : MonoBehaviour
     private void Start()
     {
         target = GameObject.FindGameObjectWithTag("Player");
-        debug = Nodegraph.Nodegraph.Get("debug");
+        debug = WaypointGraph.Get("debug");
         origin = transform.position;
         Path = new List<Connection>();
     }

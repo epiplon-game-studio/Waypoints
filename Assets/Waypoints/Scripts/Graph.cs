@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace Nodegraph
+namespace Waypoints
 {
     [CreateAssetMenu(fileName = "GraphName", menuName = "Nodegraph/New Graph")]
     public class Graph : ScriptableObject

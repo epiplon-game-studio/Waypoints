@@ -6,14 +6,14 @@ using UnityEngine;
 using UnityEditor;
 #endif
 
-namespace Nodegraph
+namespace Waypoints
 {
     [ExecuteInEditMode]
-    public class Nodegraph : MonoBehaviour
+    public class WaypointGraph : MonoBehaviour
     {
-        static List<Nodegraph> graphs = new List<Nodegraph>();
+        static List<WaypointGraph> graphs = new List<WaypointGraph>();
 
-        public static Nodegraph Get(string label)
+        public static WaypointGraph Get(string label)
         {
             return graphs.FirstOrDefault(n => n.m_nodegraphLabel.Equals(label));
         }
@@ -347,7 +347,7 @@ namespace Nodegraph
             if (target == null)
                 return;
 
-            if (target.GetComponent<Nodegraph>() != null)
+            if (target.GetComponent<WaypointGraph>() != null)
             {
                 GUI.Label(selectionRect, new GUIContent(icon), iconStyle);
             }

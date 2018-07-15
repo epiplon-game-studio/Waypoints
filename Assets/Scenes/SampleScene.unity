@@ -785,7 +785,7 @@ GameObject:
   - component: {fileID: 1990780225}
   - component: {fileID: 1990780224}
   m_Layer: 0
-  m_Name: NODEGRAPH
+  m_Name: WAYPOINTS
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

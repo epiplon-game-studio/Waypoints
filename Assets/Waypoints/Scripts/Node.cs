@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace Nodegraph
+namespace Waypoints
 {
     /// <summary>
     /// A node in the graph, with a position and all possible connections

@@ -1,18 +1,18 @@
 ﻿using UnityEditor;
 using UnityEngine;
-using Nodegraph;
+using Waypoints;
 
-namespace Nodegraph.Editor
+namespace Waypoints.Editor
 {
-    [UnityEditor.CustomEditor(typeof(Nodegraph))]
-    public class NodegraphEditor : UnityEditor.Editor
+    [UnityEditor.CustomEditor(typeof(WaypointGraph))]
+    public class WaypointGraphEditor : UnityEditor.Editor
     {
         GUIStyle clearBtn;
         Texture gearsTex, plusTex, penTex, removeTex, clearTex, cancelTex, bulkTex, confirmTex;
 
         SerializedProperty graphProperty;
         SerializedProperty movingObstacleTag;
-        Nodegraph nodegraph;
+        WaypointGraph nodegraph;
 
         Node currentNode = null;
         int selectedIndex = -1;
@@ -26,7 +26,7 @@ namespace Nodegraph.Editor
         {
             graphProperty = serializedObject.FindProperty("graph");
             movingObstacleTag = serializedObject.FindProperty("movingObstacleTag");
-            nodegraph = (Nodegraph)target;
+            nodegraph = (WaypointGraph)target;
 
             gearsTex = Resources.Load<Texture>("gears");
             plusTex = Resources.Load<Texture>("plus");

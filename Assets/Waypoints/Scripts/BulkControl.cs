@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Nodegraph
+namespace Waypoints
 {
     public class BulkControl
     {
