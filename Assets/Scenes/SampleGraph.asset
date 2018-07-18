@@ -12,79 +12,73 @@ MonoBehaviour:
   m_Name: SampleGraph
   m_EditorClassIdentifier: 
   AllNodes:
-  - Position: {x: 14.220875, y: 2.223859, z: -11.291472}
+  - Position: {x: 13.909033, y: 2.223859, z: -12.165092}
     ConnectedNodes:
     - StartNodeIndex: 0
-      EndNodeIndex: 1
-      Cost: 5.4450154
+      EndNodeIndex: 6
+      Cost: 9.854954
       Type: 1
-    - StartNodeIndex: 0
-      EndNodeIndex: 2
-      Cost: 14.126916
-      Type: 1
-    - StartNodeIndex: 0
-      EndNodeIndex: 5
-      Cost: 5.0159574
-      Type: 1
-  - Position: {x: 13.420307, y: 2.223859, z: -5.905631}
+  - Position: {x: 6.9164605, y: 2.223859, z: -8.435226}
     ConnectedNodes:
-    - StartNodeIndex: 1
-      EndNodeIndex: 0
-      Cost: 5.4450154
-      Type: 1
-    - StartNodeIndex: 1
-      EndNodeIndex: 2
-      Cost: 8.694928
-      Type: 1
     - StartNodeIndex: 1
       EndNodeIndex: 5
-      Cost: 10.298734
+      Cost: 9.115798
       Type: 1
-  - Position: {x: 12.904663, y: 2.223859, z: 2.7739935}
+    - StartNodeIndex: 1
+      EndNodeIndex: 6
+      Cost: 8.515159
+      Type: 1
+  - Position: {x: -2.574801, y: 5.012286, z: -6.3825827}
     ConnectedNodes:
-    - StartNodeIndex: 2
-      EndNodeIndex: 0
-      Cost: 14.126916
-      Type: 1
-    - StartNodeIndex: 2
-      EndNodeIndex: 1
-      Cost: 8.694928
-      Type: 1
     - StartNodeIndex: 2
       EndNodeIndex: 4
-      Cost: 11.325995
+      Cost: 8.277361
       Type: 1
-    - StartNodeIndex: 2
-      EndNodeIndex: 5
-      Cost: 18.978214
-      Type: 1
-  - Position: {x: -5.2489743, y: 2.223859, z: -16.865158}
+  - Position: {x: -3.7022533, y: 8.192324, z: -1.3201027}
     ConnectedNodes:
     - StartNodeIndex: 3
-      EndNodeIndex: 5
-      Cost: 18.458555
+      EndNodeIndex: 4
+      Cost: 8.522519
       Type: 1
-  - Position: {x: 1.5840306, y: 2.223859, z: 3.1224918}
+  - Position: {x: 4.2698393, y: 5.207466, z: -1.7320433}
     ConnectedNodes:
     - StartNodeIndex: 4
       EndNodeIndex: 2
-      Cost: 11.325995
+      Cost: 8.277361
       Type: 1
-  - Position: {x: 13.197664, y: 2.223859, z: -16.201958}
+    - StartNodeIndex: 4
+      EndNodeIndex: 3
+      Cost: 8.522519
+      Type: 1
+    - StartNodeIndex: 4
+      EndNodeIndex: 5
+      Cost: 7.038595
+      Type: 1
+  - Position: {x: 11.267953, y: 5.802088, z: -1.2687366}
     ConnectedNodes:
     - StartNodeIndex: 5
-      EndNodeIndex: 0
-      Cost: 5.0159574
-      Type: 1
-    - StartNodeIndex: 5
       EndNodeIndex: 1
-      Cost: 10.298734
+      Cost: 9.115798
       Type: 1
     - StartNodeIndex: 5
-      EndNodeIndex: 2
-      Cost: 18.978214
+      EndNodeIndex: 4
+      Cost: 7.038595
       Type: 1
     - StartNodeIndex: 5
-      EndNodeIndex: 3
-      Cost: 18.458555
+      EndNodeIndex: 6
+      Cost: 4.0769153
+      Type: 1
+  - Position: {x: 12.886396, y: 2.223859, z: -2.3633413}
+    ConnectedNodes:
+    - StartNodeIndex: 6
+      EndNodeIndex: 0
+      Cost: 9.854954
+      Type: 1
+    - StartNodeIndex: 6
+      EndNodeIndex: 1
+      Cost: 8.515159
+      Type: 1
+    - StartNodeIndex: 6
+      EndNodeIndex: 5
+      Cost: 4.0769153
       Type: 1

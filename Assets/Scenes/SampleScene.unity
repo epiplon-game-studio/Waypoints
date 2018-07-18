@@ -258,8 +258,8 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 196049458}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.26, y: 3.4, z: -6.17}
-  m_LocalScale: {x: 2.6510906, y: 3.0149317, z: 12.193821}
+  m_LocalPosition: {x: -16.28, y: 6.18, z: -5}
+  m_LocalScale: {x: 11.089778, y: 1.1725069, z: 12.193821}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 7
@@ -426,6 +426,91 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: -90.00001, z: 0}
+--- !u!1 &763082030
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 763082034}
+  - component: {fileID: 763082033}
+  - component: {fileID: 763082032}
+  - component: {fileID: 763082031}
+  m_Layer: 8
+  m_Name: SOLID (3)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!23 &763082031
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 763082030}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 4294967295
+  m_Materials:
+  - {fileID: 2100000, guid: 49be9fa688f05a94c96b2d6b25705e46, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_PreserveUVs: 1
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+--- !u!65 &763082032
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 763082030}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!33 &763082033
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 763082030}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &763082034
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 763082030}
+  m_LocalRotation: {x: -0, y: -0.70710576, z: -0, w: 0.70710784}
+  m_LocalPosition: {x: 12.7, y: 3.4, z: -15.75}
+  m_LocalScale: {x: 2.6510906, y: 3.0149317, z: 1.3656203}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 10
+  m_LocalEulerAnglesHint: {x: 0, y: -90.00001, z: 0}
 --- !u!1 &945849539
 GameObject:
   m_ObjectHideFlags: 0
@@ -587,7 +672,6 @@ GameObject:
   - component: {fileID: 1807448155}
   - component: {fileID: 1807448154}
   - component: {fileID: 1807448153}
-  - component: {fileID: 1807448152}
   - component: {fileID: 1807448156}
   m_Layer: 0
   m_Name: Enemy
@@ -596,19 +680,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!136 &1807448152
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1807448151}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  m_Radius: 0.5
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1807448153
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -757,7 +828,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1828700215}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -3.56, y: 2.9, z: 0.46}
+  m_LocalPosition: {x: -3.57, y: 8.01, z: -6.31}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -804,16 +875,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000, guid: e3837fcf3f59e304ca8e7d789ac443f3, type: 2}
   m_nodegraphLabel: debug
-  m_nodeMaximumDistance: 20
+  m_nodeMaximumDistance: 10
   m_nodeSize: 0.25
   m_brushRadius: 0.63
-  m_nodeColor: {r: 0.44599998, g: 1, b: 0, a: 1}
-  m_staticConnection: {r: 0, g: 1, b: 0.13103461, a: 1}
+  m_nodeColor: {r: 0, g: 0, b: 0, a: 1}
+  m_staticConnection: {r: 0, g: 0, b: 0, a: 1}
   m_dynamicConnection: {r: 0.9866104, g: 1, b: 0.015686274, a: 1}
   m_bulkNodeDistanceGap: 5
   m_bulkSpawnDistance: 4
   m_nodeUpOffset: 0.3
-  m_alwaysShowNodes: 0
+  m_alwaysShowNodes: 1
   solidLayerMask:
     serializedVersion: 2
     m_Bits: 256

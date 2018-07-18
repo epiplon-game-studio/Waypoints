@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Waypoints
 {
-    [CreateAssetMenu(fileName = "GraphName", menuName = "Nodegraph/New Graph")]
+    [CreateAssetMenu(fileName = "GraphName", menuName = "Waypoints/New Graph")]
     public class Graph : ScriptableObject
     {
         public List<Node> AllNodes;
