@@ -181,6 +181,10 @@ namespace Waypoints
             Node startNode = FindClosestNode(start);
             Node endNode = FindClosestNode(end);
 
+            // could not find a path 
+            if (startNode == null || endNode == null)
+                return new List<Connection>();
+
             List<Connection> path = new List<Connection>();
             List<Node> visited = new List<Node>();
 
