@@ -2,5 +2,8 @@ Library
 obj
 Packages
 Temp
+Build
 *.csproj
 *.sln
+.vs
+.vs\Nodegraph
