@@ -173,11 +173,13 @@ namespace Waypoints
             DateTime clockStart = DateTime.Now;
             //==============
 
-            float startMin = graph.AllNodes.Min(n => Vector3.Distance(start, n.Position));
-            Node startNode = graph.AllNodes.Find(n => Vector3.Distance(start, n.Position) <= startMin);
+            //float startMin = graph.AllNodes.Min(n => Vector3.Distance(start, n.Position));
+            //Node startNode = graph.AllNodes.Find(n => Vector3.Distance(start, n.Position) <= startMin);
 
-            float endMin = graph.AllNodes.Min(n => Vector3.Distance(end, n.Position));
-            Node endNode = graph.AllNodes.Find(n => Vector3.Distance(end, n.Position) <= endMin);
+            //float endMin = graph.AllNodes.Min(n => Vector3.Distance(end, n.Position));
+            //Node endNode = graph.AllNodes.Find(n => Vector3.Distance(end, n.Position) <= endMin);
+            Node startNode = FindClosestNode(start);
+            Node endNode = FindClosestNode(end);
 
             List<Connection> path = new List<Connection>();
             List<Node> visited = new List<Node>();
@@ -231,27 +233,24 @@ namespace Waypoints
             return Vector3.Distance(goal.Position, GetNode(nodeIndex).Position);
         }
 
-        //public List<Connection> AstarSearch(Node start, Node goal)
-        //{
-        //    Queue<Node> frontier = new Queue<Node>();
-        //    frontier.Enqueue(start);
+        private Node FindClosestNode(Vector3 position)
+        {
+            bool hitBackfaces = Physics.queriesHitBackfaces;
+            Physics.queriesHitBackfaces = true;
 
-        //    while (frontier.Count > 0)
-        //    {
-        //        var current = frontier.Dequeue();
+            List<Node> visibleNodes = new List<Node>();
+            for (int i = 0; i < graph.AllNodes.Count; i++)
+            {
+                // didn't hit a solid surface
+                if (!Physics.Linecast(position, graph.AllNodes[i].Position, solidLayerMask))
+                    visibleNodes.Add(graph.AllNodes[i]);
+            }
 
-        //        if (current == goal)
-        //            break;
+            Physics.queriesHitBackfaces = hitBackfaces;
 
-        //        foreach (var next in current.ConnectedNodes)
-        //        {
-        //            var nextNode = GetNode(next.EndNodeIndex);
-        //        }
-        //    }
-
-
-        //    return null;
-        //}
+            return visibleNodes.OrderBy(n => Vector3.Distance(n.Position, position))
+                .FirstOrDefault();
+        }
 
         #endregion
 
