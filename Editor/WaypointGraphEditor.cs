@@ -1,4 +1,6 @@
-﻿using UnityEditor;
+﻿using System.Collections.Generic;
+using System.Linq;
+using UnityEditor;
 using UnityEngine;
 using Waypoints;
 
@@ -16,6 +18,8 @@ namespace Waypoints.Editor
 
         Node currentNode = null;
         int selectedIndex = -1;
+
+        List<Node> selectedNodes = new List<Node>();
 
         bool showNodes = true;
         float labelSize = 40f;
@@ -40,6 +44,8 @@ namespace Waypoints.Editor
 
         public override void OnInspectorGUI()
         {
+
+
             base.OnInspectorGUI();
 
             movingObstacleTag.stringValue = EditorGUILayout.TagField("Obstacle Tag", movingObstacleTag.stringValue);
@@ -88,6 +94,7 @@ namespace Waypoints.Editor
                         if (GUI.Button(rect, new GUIContent(penTex, "Edit Nodes")))
                         {
                             nodegraph.State = NodegraphState.Editing;
+                            selectedNodes.Clear();
                         }
 
                         rect.x += offset;
@@ -104,6 +111,7 @@ namespace Waypoints.Editor
 
                             currentNode = null;
                             selectedIndex = -1;
+                            selectedNodes.Clear();
                         }
                         break;
                     case NodegraphState.Bulk:
@@ -131,9 +139,14 @@ namespace Waypoints.Editor
                             selectedIndex = -1;
                         }
                         goto case NodegraphState.Placing;
-                    case NodegraphState.Placing:
-                    case NodegraphState.Removing:
                     case NodegraphState.Editing:
+                        rect = EditorGUILayout.GetControlRect(false, EditorGUIUtility.singleLineHeight);
+                        EditorGUI.LabelField(rect, "Selected: " + selectedNodes.Count);
+                        //rect = EditorGUILayout.GetControlRect(false, EditorGUIUtility.singleLineHeight);
+                        //EditorGUI.LabelField(rect, "Multiple Selection: " + selectMultiple);
+                        goto case NodegraphState.Placing;
+                    case NodegraphState.Removing:
+                    case NodegraphState.Placing:
                         rect = EditorGUILayout.GetControlRect(false, 50);
                         if (GUI.Button(rect, new GUIContent("Cancel Actions", cancelTex)))
                         {
@@ -142,6 +155,7 @@ namespace Waypoints.Editor
 
                             currentNode = null;
                             selectedIndex = -1;
+                            selectedNodes.Clear();
                         }
                         break;
                 }
@@ -174,38 +188,25 @@ namespace Waypoints.Editor
 
         private void OnSceneGUI()
         {
-            if (EditorWindow.mouseOverWindow == null)
-                return;
-
             EditorGUI.BeginChangeCheck();
 
             switch (nodegraph.State)
             {
                 case NodegraphState.Placing:
                     PlacingNodes();
+                    Repaint();
                     break;
                 case NodegraphState.Bulk:
                     BulkNodes();
+                    Repaint();
                     break;
                 case NodegraphState.Removing:
                     RemovingNodes();
+                    Repaint();
                     break;
                 case NodegraphState.Editing:
-                    var nodelist = nodegraph.GetNodes();
-                    for (int i = 0; i < nodelist.Count; i++)
-                    {
-                        int controlID = GUIUtility.GetControlID(FocusType.Keyboard);
-                        if (currentNode == nodelist[i])
-                            currentNode.Position = Handles.PositionHandle(currentNode.Position, Quaternion.identity);
-                        else
-                            Handles.CubeHandleCap(controlID, nodelist[i].Position, Quaternion.identity, 2f, EventType.Layout);
-
-                        if (HandleUtility.nearestControl == controlID && Event.current.GetTypeForControl(controlID) == EventType.MouseDown)
-                        {
-                            currentNode = nodelist[i];
-                        }
-                    }
-
+                    EditingNodes();
+                    Repaint();
                     break;
             }
 
@@ -281,6 +282,68 @@ namespace Waypoints.Editor
                         }
                     }
                     break;
+            }
+        }
+
+        void EditingNodes()
+        {
+            //if (Event.current.type == EventType.MouseDrag)
+            //{
+            //    currentPos = Event.current.mousePosition;
+            //    if(!isDragging)
+            //    {
+            //        isDragging = true;
+            //        startPos = currentPos;
+            //    }
+            //}
+
+            //if (Event.current.type == EventType.MouseUp)
+            //{
+            //    isDragging = false;
+            //}
+
+            //if (isDragging)
+            //{
+            //    float size = Vector2.Distance(startPos, currentPos);
+            //    Handles.DrawSelectionFrame(0, startPos, Quaternion.identity, size, EventType.Repaint);
+            //    //GUI.Box(new Rect(startPos.x, startPos.y, currentPos.x - startPos.x, currentPos.y - startPos.y), string.Empty);
+            //}
+
+            var nodelist = nodegraph.GetNodes();
+            HandleUtility.AddDefaultControl(0);
+            for (int i = 0; i < nodelist.Count; i++)
+            {
+                int controlID = GUIUtility.GetControlID(FocusType.Passive);
+                //if (currentNode == nodelist[i])
+                //    currentNode.Position = Handles.PositionHandle(currentNode.Position, Quaternion.identity);
+                //else
+                //    Handles.CubeHandleCap(controlID, nodelist[i].Position, Quaternion.identity, 2f, EventType.Layout);
+
+                if (selectedNodes.Count > 0)
+                {
+                    Vector3 median = Vector3.zero;
+                    for (int p = 0; p < selectedNodes.Count; p++)
+                        median += selectedNodes[p].Position;
+
+                    median /= selectedNodes.Count;
+                    Vector3 offset = Handles.PositionHandle(median, Quaternion.identity) - median;
+
+                    for (int p = 0; p < selectedNodes.Count; p++)
+                        selectedNodes[p].Position += offset;
+                }
+
+                Handles.CubeHandleCap(controlID, nodelist[i].Position, Quaternion.identity, 2f, EventType.Layout);
+
+                if (HandleUtility.nearestControl == controlID
+                    && Event.current.GetTypeForControl(controlID) == EventType.MouseDown
+                    && Event.current.button == 0) // left mouse button
+                {
+
+                    if (!Event.current.shift)
+                        selectedNodes.Clear();
+
+                    selectedNodes.Add(nodelist[i]);
+                }
             }
         }
 
