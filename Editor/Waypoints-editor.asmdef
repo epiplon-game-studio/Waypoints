@@ -1,7 +1,7 @@
 {
     "name": "Nodegraph-editor",
     "references": [
-        "Nodegraph"
+        "Waypoints"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [
