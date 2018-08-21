@@ -17,7 +17,7 @@ namespace Waypoints.Editor
         WaypointGraph nodegraph;
 
         Node currentNode = null;
-        int selectedIndex = -1;
+        //int selectedIndex = -1;
 
         List<Node> selectedNodes = new List<Node>();
 
@@ -44,8 +44,6 @@ namespace Waypoints.Editor
 
         public override void OnInspectorGUI()
         {
-
-
             base.OnInspectorGUI();
 
             movingObstacleTag.stringValue = EditorGUILayout.TagField("Obstacle Tag", movingObstacleTag.stringValue);
@@ -59,9 +57,12 @@ namespace Waypoints.Editor
 
             if (graphProperty.objectReferenceValue != null)
             {
+                Color originalColor = GUI.color;
                 EditorGUILayout.Space();
 
-                EditorGUILayout.LabelField("Current Action: " + nodegraph.State);
+                var actionStyle = new GUIStyle(EditorStyles.boldLabel);
+                actionStyle.normal.textColor = Color.blue;
+                EditorGUILayout.LabelField("Current Action: " + nodegraph.State, actionStyle);
 
                 GUI.contentColor = Color.white;
                 Rect rect = EditorGUILayout.GetControlRect(false, 50);
@@ -110,7 +111,7 @@ namespace Waypoints.Editor
                             SceneView.RepaintAll();
 
                             currentNode = null;
-                            selectedIndex = -1;
+                            //selectedIndex = -1;
                             selectedNodes.Clear();
                         }
                         break;
@@ -136,17 +137,19 @@ namespace Waypoints.Editor
                             EditorUtility.SetDirty(graphProperty.objectReferenceValue);
 
                             currentNode = null;
-                            selectedIndex = -1;
+                            //selectedIndex = -1;
                         }
                         goto case NodegraphState.Placing;
                     case NodegraphState.Editing:
-                        rect = EditorGUILayout.GetControlRect(false, EditorGUIUtility.singleLineHeight);
-                        EditorGUI.LabelField(rect, "Selected: " + selectedNodes.Count);
                         //rect = EditorGUILayout.GetControlRect(false, EditorGUIUtility.singleLineHeight);
-                        //EditorGUI.LabelField(rect, "Multiple Selection: " + selectMultiple);
-                        goto case NodegraphState.Placing;
-                    case NodegraphState.Removing:
-                    case NodegraphState.Placing:
+                        originalColor = GUI.color;
+                        GUI.color = Color.grey;
+                        rect.width = EditorGUIUtility.currentViewWidth;
+                        EditorGUI.LabelField(rect, "Selected: " + selectedNodes.Count);
+                        rect.y += EditorGUIUtility.singleLineHeight;
+                        EditorGUI.LabelField(rect, "Select SHIFT to select multiple.");
+                        GUI.color = originalColor;
+
                         rect = EditorGUILayout.GetControlRect(false, 50);
                         if (GUI.Button(rect, new GUIContent("Cancel Actions", cancelTex)))
                         {
@@ -154,7 +157,34 @@ namespace Waypoints.Editor
                             EditorUtility.SetDirty(graphProperty.objectReferenceValue);
 
                             currentNode = null;
-                            selectedIndex = -1;
+                            //selectedIndex = -1;
+                            selectedNodes.Clear();
+                        }
+                        break;
+                    case NodegraphState.Placing:
+                        rect = EditorGUILayout.GetControlRect(false, EditorGUIUtility.singleLineHeight);
+                        //rect.y += EditorGUIUtility.singleLineHeight;
+                        EditorGUI.LabelField(rect, "Press SPACE to place node in view position.", EditorStyles.boldLabel);
+                        rect = EditorGUILayout.GetControlRect(false, 50);
+                        if (GUI.Button(rect, new GUIContent("Cancel Actions", cancelTex)))
+                        {
+                            nodegraph.State = NodegraphState.None;
+                            EditorUtility.SetDirty(graphProperty.objectReferenceValue);
+
+                            currentNode = null;
+                            //selectedIndex = -1;
+                            selectedNodes.Clear();
+                        }
+                        break;
+                    case NodegraphState.Removing:
+                        rect = EditorGUILayout.GetControlRect(false, 50);
+                        if (GUI.Button(rect, new GUIContent("Cancel Actions", cancelTex)))
+                        {
+                            nodegraph.State = NodegraphState.None;
+                            EditorUtility.SetDirty(graphProperty.objectReferenceValue);
+
+                            currentNode = null;
+                            //selectedIndex = -1;
                             selectedNodes.Clear();
                         }
                         break;
@@ -172,7 +202,7 @@ namespace Waypoints.Editor
                         rect = EditorGUILayout.GetControlRect();
 
                         Color original = GUI.color;
-                        GUI.color = selectedIndex == i ? Color.cyan : Color.white;
+                        GUI.color = selectedNodes.Contains(nodelist[i]) ? Color.cyan : Color.white;
 
                         nodelist[i].Position = EditorGUI.Vector3Field(rect, string.Format("#{0}", i), nodelist[i].Position);
                         GUI.color = original;
@@ -194,23 +224,20 @@ namespace Waypoints.Editor
             {
                 case NodegraphState.Placing:
                     PlacingNodes();
-                    Repaint();
                     break;
                 case NodegraphState.Bulk:
                     BulkNodes();
-                    Repaint();
                     break;
                 case NodegraphState.Removing:
                     RemovingNodes();
-                    Repaint();
                     break;
                 case NodegraphState.Editing:
                     EditingNodes();
-                    Repaint();
                     break;
             }
 
             EditorGUI.EndChangeCheck();
+            Repaint();
         }
 
         private void OnDisable()
@@ -250,6 +277,15 @@ namespace Waypoints.Editor
                         }
                     }
                     break;
+                case EventType.KeyDown:
+                    if (Event.current.keyCode == KeyCode.Space)
+                    {
+                        Camera sceneCamera = SceneView.lastActiveSceneView.camera;
+                        var position = sceneCamera.transform.position + sceneCamera.transform.forward;
+                        nodegraph.AddNode(position);
+                        Event.current.Use();
+                    }
+                    break;
             }
         }
 
@@ -287,37 +323,11 @@ namespace Waypoints.Editor
 
         void EditingNodes()
         {
-            //if (Event.current.type == EventType.MouseDrag)
-            //{
-            //    currentPos = Event.current.mousePosition;
-            //    if(!isDragging)
-            //    {
-            //        isDragging = true;
-            //        startPos = currentPos;
-            //    }
-            //}
-
-            //if (Event.current.type == EventType.MouseUp)
-            //{
-            //    isDragging = false;
-            //}
-
-            //if (isDragging)
-            //{
-            //    float size = Vector2.Distance(startPos, currentPos);
-            //    Handles.DrawSelectionFrame(0, startPos, Quaternion.identity, size, EventType.Repaint);
-            //    //GUI.Box(new Rect(startPos.x, startPos.y, currentPos.x - startPos.x, currentPos.y - startPos.y), string.Empty);
-            //}
-
             var nodelist = nodegraph.GetNodes();
             HandleUtility.AddDefaultControl(0);
             for (int i = 0; i < nodelist.Count; i++)
             {
                 int controlID = GUIUtility.GetControlID(FocusType.Passive);
-                //if (currentNode == nodelist[i])
-                //    currentNode.Position = Handles.PositionHandle(currentNode.Position, Quaternion.identity);
-                //else
-                //    Handles.CubeHandleCap(controlID, nodelist[i].Position, Quaternion.identity, 2f, EventType.Layout);
 
                 if (selectedNodes.Count > 0)
                 {
@@ -326,10 +336,17 @@ namespace Waypoints.Editor
                         median += selectedNodes[p].Position;
 
                     median /= selectedNodes.Count;
-                    Vector3 offset = Handles.PositionHandle(median, Quaternion.identity) - median;
 
-                    for (int p = 0; p < selectedNodes.Count; p++)
-                        selectedNodes[p].Position += offset;
+                    EditorGUI.BeginChangeCheck();
+                    Vector3 newPosition = Handles.PositionHandle(median, Quaternion.identity);
+                    if (EditorGUI.EndChangeCheck())
+                    {
+                        for (int p = 0; p < selectedNodes.Count; p++)
+                        {
+                            Vector3 offset = newPosition - median;
+                            selectedNodes[p].Position += offset;
+                        }
+                    }
                 }
 
                 Handles.CubeHandleCap(controlID, nodelist[i].Position, Quaternion.identity, 2f, EventType.Layout);
