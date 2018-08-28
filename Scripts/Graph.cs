@@ -9,7 +9,7 @@ namespace Waypoints
     [CreateAssetMenu(fileName = "GraphName", menuName = "Waypoints/New Graph")]
     public class Graph : ScriptableObject
     {
-        public List<Node> AllNodes;
+        public List<Node> AllNodes = new List<Node>();
 
         public Node GetNode(int index)
         {
