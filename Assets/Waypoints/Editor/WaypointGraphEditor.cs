@@ -252,7 +252,7 @@ namespace Waypoints.Editor
 
             RaycastHit hitInfo;
             Ray click = HandleUtility.GUIPointToWorldRay(Event.current.mousePosition);
-            if (Physics.Raycast(click, out hitInfo, 1000, nodegraph.solidLayerMask))
+            if (Physics.Raycast(click, out hitInfo, 1000, nodegraph.solidLayerMask, nodegraph.m_hitTriggers))
             {
                 Handles.color = Color.yellow;
                 Handles.DrawWireCube(hitInfo.point, Vector3.one / 4f);
