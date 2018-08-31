@@ -25,6 +25,7 @@ namespace Waypoints
         public string m_nodegraphLabel;
         public float m_nodeMaximumDistance = 3f;
         public float m_nodeSize = 0.25f;
+        public QueryTriggerInteraction m_hitTriggers;
         [Tooltip("For removing nodes")]
         public float m_brushRadius = 3f;
 
@@ -32,6 +33,7 @@ namespace Waypoints
         public Color m_nodeColor = Color.cyan;
         public Color m_staticConnection = Color.cyan;
         public Color m_dynamicConnection = Color.yellow;
+        public bool m_showLog;
 
         [Space]
         public int m_bulkNodeDistanceGap = 3;
@@ -46,6 +48,12 @@ namespace Waypoints
         private void Awake()
         {
             graphs.Add(this);
+        }
+
+        public void PrintLog(string message)
+        {
+            if (m_showLog)
+                Debug.Log(message);
         }
 
         private void OnDestroy()
@@ -110,11 +118,11 @@ namespace Waypoints
 
             for (int i = 0; i < graph.AllNodes.Count; i++)
             {
-                var overlapped = Physics.OverlapSphere(graph.AllNodes[i].Position, m_nodeSize, solidLayerMask);
+                var overlapped = Physics.OverlapSphere(graph.AllNodes[i].Position, m_nodeSize, solidLayerMask, m_hitTriggers);
                 if (overlapped.Count() > 0)
                 {
                     graph.AllNodes[i].ConnectedNodes.Clear();
-                    Debug.Log("Overlapped");
+                    PrintLog("Found node overlap.");
                     continue;
                 }
 
@@ -130,7 +138,8 @@ namespace Waypoints
                         // tries to find something between the nodes
                         var diff = (n.Position - graph.AllNodes[i].Position);
                         //if (Physics.Linecast(graph.AllNodes[i].Position, n.Position, out hit, solidLayerMask))
-                        var n_hits = Physics.RaycastNonAlloc(graph.AllNodes[i].Position, diff.normalized, hits, diff.magnitude, solidLayerMask);
+                        var n_hits = Physics.RaycastNonAlloc(graph.AllNodes[i].Position, diff.normalized, 
+                            hits, diff.magnitude, solidLayerMask, m_hitTriggers);
                         if (n_hits > 0)
                         {
                             connection.Type = ConnectionType.Dynamic;
@@ -194,8 +203,8 @@ namespace Waypoints
 
             //=============
             TimeSpan clockEnd = DateTime.Now - clockStart;
-            Debug.Log("Operation took: " + clockEnd.TotalSeconds);
-            Debug.Log("Search found " + path.Count + " nodes.");
+            PrintLog("Operation took: " + clockEnd.TotalSeconds);
+            PrintLog("Search found " + path.Count + " nodes.");
 
             return path;
         }
@@ -257,6 +266,8 @@ namespace Waypoints
         }
 
         #endregion
+
+
 
 #if UNITY_EDITOR
         [HideInInspector]
