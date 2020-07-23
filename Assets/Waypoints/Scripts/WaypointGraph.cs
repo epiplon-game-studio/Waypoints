@@ -18,8 +18,8 @@ namespace Waypoints
             return graphs.FirstOrDefault(n => n.m_nodegraphLabel.Equals(label));
         }
 
-        [SerializeField]
-        private Graph graph;
+        [SerializeField, HideInInspector]
+        public Graph graph;
 
         [Header("Node Settings")]
         public string m_nodegraphLabel;
@@ -345,7 +345,7 @@ namespace Waypoints
 
         static NodegraphHierarchy()
         {
-            icon = Resources.Load<Texture>("nodegraph-icon");
+            icon = Resources.Load<Texture>("waypoint-icon");
             if (iconStyle == null)
             {
                 iconStyle = new GUIStyle();
