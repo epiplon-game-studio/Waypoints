@@ -437,7 +437,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   movingObstacleTag: 
-  State: 3
+  State: 2
 --- !u!4 &331953856
 Transform:
   m_ObjectHideFlags: 0

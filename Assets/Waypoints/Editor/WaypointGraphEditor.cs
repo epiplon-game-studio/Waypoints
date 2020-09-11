@@ -1,9 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Analytics;
-using Waypoints;
 
 namespace Waypoints.Editor
 {
@@ -12,10 +9,10 @@ namespace Waypoints.Editor
     {
         Event e => Event.current;
         static Texture2D btnUp, btnDown;
-        static GUIContent gearsTex, plusTex, penTex,
+        static GUIContent plusTex, penTex,
             removeTex, clearTex, cancelTex, bulkTex, confirmTex;
 
-        SerializedProperty graphProperty, movingObstacleTag, autoRebuild;
+        SerializedProperty graphProperty, movingObstacleTag, autoRebuild, graphState;
         WaypointGraph graph;
 
         Node currentNode = null;
@@ -36,9 +33,9 @@ namespace Waypoints.Editor
             graphProperty = serializedObject.FindProperty("graph");
             movingObstacleTag = serializedObject.FindProperty("movingObstacleTag");
             autoRebuild = serializedObject.FindProperty("m_autoRebuild");
+            graphState = serializedObject.FindProperty("State");
             graph = (WaypointGraph)target;
 
-            gearsTex = LoadContent("gears", "Rebuild Graph");
             plusTex = LoadContent("plus", "Place Waypoint Node");
             penTex = LoadContent("pen", "Edit Waypoint Node");
             removeTex = LoadContent("remove", "Remove Waypoint Node");
@@ -87,7 +84,7 @@ namespace Waypoints.Editor
 
             int id = GUIUtility.GetControlID(FocusType.Passive);
             HandleUtility.AddDefaultControl(id);
-            switch (graph.State)
+            switch ((NodegraphState)graphState.enumValueIndex)
             {
                 case NodegraphState.Placing:
                     PlacingNodes(id);
@@ -113,19 +110,19 @@ namespace Waypoints.Editor
         {
             if (GUI.Button(rect, plusTex, ButtonStyle(graph.State == NodegraphState.Placing)))
             {
-                graph.State = NodegraphState.Placing;
+                graphState.enumValueIndex = (int)NodegraphState.Placing;
             }
             rect.x += X_OFFSET;
 
             if (GUI.Button(rect, penTex, ButtonStyle(graph.State == NodegraphState.Editing)))
             {
-                graph.State = NodegraphState.Editing;
+                graphState.enumValueIndex = (int)NodegraphState.Editing;
             }
             rect.x += X_OFFSET;
 
             if (GUI.Button(rect, removeTex, ButtonStyle(graph.State == NodegraphState.Removing)))
             {
-                graph.State = NodegraphState.Removing;
+                graphState.enumValueIndex = (int)NodegraphState.Removing;
             }
             rect.x += X_OFFSET;
 
@@ -137,8 +134,18 @@ namespace Waypoints.Editor
                 {
                     graph.ClearNodes();
                 }
+                graphState.enumValueIndex = (int)NodegraphState.None;
             }
             rect.x += X_OFFSET;
+
+            rect.width *= 2;
+            if (GUI.Button(rect, "Close"))
+            {
+                Selection.activeGameObject = null;
+                Tools.current = Tool.Move;
+            }
+
+            serializedObject.ApplyModifiedProperties();
         }
 
         #region Actions
@@ -317,7 +324,6 @@ namespace Waypoints.Editor
         #endregion
         private void OnDisable()
         {
-            graph.State = NodegraphState.None;
             Tools.current = Tool.Move;
         }
 

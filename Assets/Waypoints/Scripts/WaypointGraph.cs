@@ -268,8 +268,6 @@ namespace Waypoints
 
         #endregion
 
-
-
 #if UNITY_EDITOR
         [HideInInspector]
         public NodegraphState State = NodegraphState.None;
