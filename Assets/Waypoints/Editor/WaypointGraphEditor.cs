@@ -2,6 +2,7 @@
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Analytics;
 using Waypoints;
 
 namespace Waypoints.Editor
@@ -9,6 +10,7 @@ namespace Waypoints.Editor
     [UnityEditor.CustomEditor(typeof(WaypointGraph))]
     public class WaypointGraphEditor : UnityEditor.Editor
     {
+        Event e => Event.current;
         static Texture2D btnUp, btnDown;
         static GUIContent gearsTex, plusTex, penTex,
             removeTex, clearTex, cancelTex, bulkTex, confirmTex;
@@ -127,7 +129,7 @@ namespace Waypoints.Editor
             }
             rect.x += X_OFFSET;
 
-            if (GUI.Button(rect, clearTex))
+            if (GUI.Button(rect, clearTex, ButtonStyle(graph.State == NodegraphState.Clearing)))
             {
                 if (EditorUtility.DisplayDialog("Clearing all the Waypoint Nodes", "This action will " +
                                 "remove all the nodes from the currently selected Waypoint. Are you sure?",
@@ -184,49 +186,106 @@ namespace Waypoints.Editor
                         Camera sceneCamera = SceneView.lastActiveSceneView.camera;
                         var position = sceneCamera.transform.position + sceneCamera.transform.forward;
                         graph.AddNode(position);
+                        if (autoRebuild.boolValue)
+                            graph.RebuildNodegraph();
+
                         Event.current.Use();
                     }
                     break;
             }
         }
 
-        void RemovingNodes(int id)
+        void EditingNodes()
         {
-            RaycastHit hitInfo;
-            Ray click = HandleUtility.GUIPointToWorldRay(Event.current.mousePosition);
-            if (Physics.Raycast(click, out hitInfo, 1000, graph.solidLayerMask))
-            {
-                Handles.color = Color.yellow;
-                Handles.DrawWireDisc(hitInfo.point, Vector3.up, graph.m_brushRadius);
-                Handles.DrawWireDisc(hitInfo.point, Vector3.right, graph.m_brushRadius);
+            // select handle control
+            
 
-                var nodes = graph.GetNodes();
-                Handles.color = Color.red;
-                for (int ni = 0; ni < nodes.Count; ni++)
+            var nodelist = graph.GetNodes();
+            for (int i = 0; i < nodelist.Count; i++)
+            {
+                int id = GUIUtility.GetControlID(FocusType.Passive);
+                HandleUtility.AddDefaultControl(id);
+                Handles.color = Color.white;
+                Handles.CubeHandleCap(id, nodelist[i].Position, Quaternion.identity, graph.m_nodeSize, EventType.Layout);
+
+                if (HandleUtility.nearestControl == id
+                    && Event.current.GetTypeForControl(id) == EventType.MouseDown
+                    && Event.current.button == 0) // left mouse button
                 {
-                    if (Vector3.Distance(hitInfo.point, nodes[ni].Position) <= graph.m_brushRadius)
-                        Handles.CubeHandleCap(0, nodes[ni].Position, Quaternion.identity, graph.m_nodeSize, EventType.Repaint);
+
+                    if (!Event.current.shift)
+                        selectedNodes.Clear();
+
+                    selectedNodes.Add(nodelist[i]);
                 }
             }
 
-            switch (Event.current.type)
+            for (int s = 0; s < selectedNodes.Count; s++)
             {
-                case EventType.MouseDown:
-                    // placing mode and mouse on Scene tab
-                    if (EditorWindow.mouseOverWindow.titleContent.text == "Scene")
-                    {
-                        // grab mouse down
-                        if (Event.current.button == 0)
-                        {
-                            graph.RemoveNodes(hitInfo.point);
-                            if(autoRebuild.boolValue)
-                                graph.RebuildNodegraph();
-
-                            Event.current.Use();
-                        }
-                    }
-                    break;
+                Handles.color = Color.white;
+                Handles.CubeHandleCap(0, selectedNodes[s].Position, Quaternion.identity, graph.m_nodeSize, EventType.Repaint);
             }
+
+            if (selectedNodes.Count > 0)
+            {
+                Vector3 median = Vector3.zero;
+                for (int p = 0; p < selectedNodes.Count; p++)
+                    median += selectedNodes[p].Position;
+
+                median /= selectedNodes.Count;
+
+                EditorGUI.BeginChangeCheck();
+                Vector3 newPosition = Handles.PositionHandle(median, Quaternion.identity);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    for (int p = 0; p < selectedNodes.Count; p++)
+                    {
+                        Vector3 offset = newPosition - median;
+                        selectedNodes[p].Position += offset;
+                    }
+                }
+            }
+        }
+
+        void RemovingNodes(int id)
+        {
+            Ray pointer = HandleUtility.GUIPointToWorldRay(e.mousePosition);
+
+            // draws brush
+            var p = pointer.origin + pointer.direction * 5f;
+            Handles.color = Color.yellow;
+            Handles.CircleHandleCap(id, p, Quaternion.LookRotation(pointer.direction), graph.m_brushRadius, EventType.Repaint);
+
+            var nodes = graph.GetNodes();
+            Handles.color = Color.red;
+            for (int ni = 0; ni < nodes.Count; ni++)
+            {
+                var screenNodePos = HandleUtility.WorldToGUIPoint(nodes[ni].Position);
+                var mousePos = e.mousePosition;
+
+                var distance = Vector2.Distance(new Vector2(screenNodePos.x, screenNodePos.y), mousePos);
+                //Handles.Label(nodes[ni].Position, $"Distance: {distance}");
+                if (distance <= graph.m_brushRadius * 100)
+                {
+                    Handles.CubeHandleCap(0, nodes[ni].Position, Quaternion.identity, graph.m_nodeSize, EventType.Repaint);
+                }
+            }
+
+            if (Event.current.type == EventType.MouseDown)
+            {
+                for (int ni = 0; ni < nodes.Count; ni++)
+                {
+                    var screenNodePos = HandleUtility.WorldToGUIPoint(nodes[ni].Position);
+                    var mousePos = e.mousePosition;
+
+                    var distance = Vector2.Distance(new Vector2(screenNodePos.x, screenNodePos.y), mousePos);
+                    if (distance <= graph.m_brushRadius * 100)
+                        graph.RemoveNode(ni);
+                }
+            }
+
+            if (autoRebuild.boolValue)
+                graph.RebuildNodegraph();
         }
 
         void BulkNodes(int id)
@@ -255,52 +314,6 @@ namespace Waypoints.Editor
 
             EditorGUI.EndChangeCheck();
         }
-
-        void EditingNodes()
-        {
-            var nodelist = graph.GetNodes();
-            for (int i = 0; i < nodelist.Count; i++)
-            {
-                // select handle control
-                int id = GUIUtility.GetControlID(FocusType.Passive);
-                HandleUtility.AddDefaultControl(id);
-
-                Handles.CubeHandleCap(id, nodelist[i].Position, Quaternion.identity, CUBE_SIZE, EventType.Layout);
-
-                if (selectedNodes.Count > 0)
-                {
-                    Vector3 median = Vector3.zero;
-                    for (int p = 0; p < selectedNodes.Count; p++)
-                        median += selectedNodes[p].Position;
-
-                    median /= selectedNodes.Count;
-
-                    EditorGUI.BeginChangeCheck();
-                    Vector3 newPosition = Handles.PositionHandle(median, Quaternion.identity);
-                    if (EditorGUI.EndChangeCheck())
-                    {
-                        for (int p = 0; p < selectedNodes.Count; p++)
-                        {
-                            Vector3 offset = newPosition - median;
-                            selectedNodes[p].Position += offset;
-                        }
-                    }
-                }
-
-
-                if (HandleUtility.nearestControl == id
-                    && Event.current.GetTypeForControl(id) == EventType.MouseDown
-                    && Event.current.button == 0) // left mouse button
-                {
-
-                    if (!Event.current.shift)
-                        selectedNodes.Clear();
-
-                    selectedNodes.Add(nodelist[i]);
-                }
-            }
-        }
-
         #endregion
         private void OnDisable()
         {

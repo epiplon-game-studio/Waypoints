@@ -423,7 +423,7 @@ MonoBehaviour:
   m_nodeMaximumDistance: 4
   m_nodeSize: 0.25
   m_hitTriggers: 0
-  m_brushRadius: 3
+  m_brushRadius: 1
   m_nodeColor: {r: 0, g: 1, b: 1, a: 1}
   m_staticConnection: {r: 0, g: 1, b: 1, a: 1}
   m_dynamicConnection: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
@@ -437,7 +437,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   movingObstacleTag: 
-  State: 4
+  State: 3
 --- !u!4 &331953856
 Transform:
   m_ObjectHideFlags: 0
@@ -446,7 +446,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 331953854}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.9357662, y: 4.439413, z: -4.8816137}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
