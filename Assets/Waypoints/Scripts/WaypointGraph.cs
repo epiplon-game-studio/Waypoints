@@ -34,6 +34,7 @@ namespace Waypoints
         public Color m_staticConnection = Color.cyan;
         public Color m_dynamicConnection = Color.yellow;
         public bool m_showLog;
+        public bool m_autoRebuild = true;
 
         [Space]
         public int m_bulkNodeDistanceGap = 3;

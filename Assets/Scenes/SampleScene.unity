@@ -420,7 +420,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000, guid: aafa9fe2771f9e640b1077a663b80f16, type: 2}
   m_nodegraphLabel: 
-  m_nodeMaximumDistance: 3
+  m_nodeMaximumDistance: 4
   m_nodeSize: 0.25
   m_hitTriggers: 0
   m_brushRadius: 3
@@ -428,15 +428,16 @@ MonoBehaviour:
   m_staticConnection: {r: 0, g: 1, b: 1, a: 1}
   m_dynamicConnection: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   m_showLog: 0
-  m_bulkNodeDistanceGap: 5
+  m_autoRebuild: 1
+  m_bulkNodeDistanceGap: 10
   m_bulkSpawnDistance: 4
   m_nodeUpOffset: 0.53
   m_alwaysShowNodes: 0
   solidLayerMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 256
   movingObstacleTag: 
-  State: 0
+  State: 4
 --- !u!4 &331953856
 Transform:
   m_ObjectHideFlags: 0
