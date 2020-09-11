@@ -84,7 +84,7 @@ namespace Waypoints
             graph.AllNodes.Clear();
         }
 
-        public void RemoveNodes(Vector3 center)
+        public void RemoveNode(int i)
         {
             if (graph == null)
             {
@@ -98,7 +98,7 @@ namespace Waypoints
                 return;
             }
 
-            graph.AllNodes.RemoveAll(n => Vector3.Distance(n.Position, center) <= m_brushRadius);
+            graph.AllNodes.RemoveAt(i);
         }
 
         public Node GetNode(int index)
@@ -334,7 +334,8 @@ namespace Waypoints
         Bulk,
         Placing,
         Editing,
-        Removing
+        Removing,
+        Clearing
     }
 
 #if UNITY_EDITOR
