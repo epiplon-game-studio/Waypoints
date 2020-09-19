@@ -15,13 +15,7 @@ namespace Waypoints.Editor
         SerializedProperty graphProperty, movingObstacleTag, autoRebuild, graphState;
         WaypointGraph graph;
 
-        Node currentNode = null;
-        //int selectedIndex = -1;
-
         List<Node> selectedNodes = new List<Node>();
-
-        bool showNodes = true;
-        float labelSize = 40f;
 
         BulkControl bulkControl = null;
 

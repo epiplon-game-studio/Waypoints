@@ -53,21 +53,13 @@ public class FindPlayer : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.grey;
-        Node lastNode = null;
+        Node lastNode = new Node(transform.position); 
         if (Path != null)
         {
             for (int i = 0; i < Path.Count; i++)
             {
-
                 Node node = debug.GetNode(Path[i].EndNodeIndex);
-                if (i == 0)
-                {
-                    Gizmos.DrawLine(transform.position, node.Position);
-                }
-                else
-                {
-                    Gizmos.DrawLine(lastNode.Position, node.Position);
-                }
+                Gizmos.DrawLine(lastNode.Position, node.Position);
                 Gizmos.DrawCube(node.Position, Vector3.one * 0.5f);
 
                 lastNode = node;
