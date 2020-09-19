@@ -205,8 +205,6 @@ namespace Waypoints.Editor
         void EditingNodes()
         {
             // select handle control
-            
-
             var nodelist = graph.GetNodes();
             for (int i = 0; i < nodelist.Count; i++)
             {
@@ -250,6 +248,7 @@ namespace Waypoints.Editor
                         Vector3 offset = newPosition - median;
                         selectedNodes[p].Position += offset;
                     }
+                    graph.RebuildNodegraph();
                 }
             }
         }
