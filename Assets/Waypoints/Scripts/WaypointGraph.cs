@@ -46,9 +46,12 @@ namespace Waypoints
         public LayerMask solidLayerMask;
         [HideInInspector] public string movingObstacleTag;
 
+        ConnectionComparer connectionComparer;
+
         private void Awake()
         {
             graphs.Add(this);
+            connectionComparer = new ConnectionComparer() { getNode = GetNode };
         }
 
         public void PrintLog(string message)
@@ -122,7 +125,7 @@ namespace Waypoints
                 var overlapped = Physics.OverlapSphere(graph.AllNodes[i].Position, m_nodeSize, solidLayerMask, m_hitTriggers);
                 if (overlapped.Count() > 0)
                 {
-                    graph.AllNodes[i].ConnectedNodes.Clear();
+                    graph.AllNodes[i].ConnectedNodes = new Connection[0];
                     PrintLog("Found node overlap.");
                     continue;
                 }
@@ -138,8 +141,7 @@ namespace Waypoints
 
                         // tries to find something between the nodes
                         var diff = (n.Position - graph.AllNodes[i].Position);
-                        //if (Physics.Linecast(graph.AllNodes[i].Position, n.Position, out hit, solidLayerMask))
-                        var n_hits = Physics.RaycastNonAlloc(graph.AllNodes[i].Position, diff.normalized, 
+                        var n_hits = Physics.RaycastNonAlloc(graph.AllNodes[i].Position, diff.normalized,
                             hits, diff.magnitude, solidLayerMask, m_hitTriggers);
                         if (n_hits > 0)
                         {
@@ -163,7 +165,7 @@ namespace Waypoints
                     })
                     .Where(c => c.Type != ConnectionType.Null);
 
-                graph.AllNodes[i].ConnectedNodes = connectedNodes.ToList();
+                graph.AllNodes[i].ConnectedNodes = connectedNodes.ToArray();
             }
 
             Physics.queriesHitBackfaces = hitBackfaces;
@@ -205,6 +207,7 @@ namespace Waypoints
             return path;
         }
 
+      
         /// <summary>
         /// Executes the pathfinding recursive search function
         /// </summary>
@@ -219,7 +222,9 @@ namespace Waypoints
             path.Add(connection);
             visited.Add(node);
 
-            foreach (var childConnect in node.ConnectedNodes.OrderBy(c => c.Cost + heuristic(c.EndNodeIndex, endNode)))
+            connectionComparer.endNode = endNode;
+            Array.Sort(node.ConnectedNodes, connectionComparer);
+            foreach (var childConnect in node.ConnectedNodes)
             {
                 Node child = graph.GetNode(childConnect.EndNodeIndex);
 
@@ -230,16 +235,16 @@ namespace Waypoints
                     path = Search(childConnect, endNode, ref path, ref visited);
             }
 
-            var lastNode = graph.GetNode(path.Last().EndNodeIndex);
+            var lastNode = graph.GetNode(path[path.Count-1].EndNodeIndex);
             if (lastNode != endNode)
                 path.RemoveAt(path.Count - 1);
 
             return path;
         }
 
-        private float heuristic(int nodeIndex, Node goal)
+        public static float Heuristic(Vector3 nodePosition, Node goal)
         {
-            return Vector3.Distance(goal.Position, GetNode(nodeIndex).Position);
+            return Vector3.Distance(goal.Position, nodePosition);
         }
 
         private Node FindClosestNode(Vector3 position)
@@ -257,7 +262,7 @@ namespace Waypoints
                         closestNode = graph.AllNodes[i];
                     else
                     {
-                        if (Vector3.Distance(graph.AllNodes[i].Position, position) 
+                        if (Vector3.Distance(graph.AllNodes[i].Position, position)
                             < Vector3.Distance(closestNode.Position, position))
                             closestNode = graph.AllNodes[i];
                     }
@@ -270,6 +275,7 @@ namespace Waypoints
         }
 
         #endregion
+
 
 #if UNITY_EDITOR
         [HideInInspector]

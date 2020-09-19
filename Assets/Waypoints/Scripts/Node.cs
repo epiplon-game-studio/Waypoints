@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using UnityEditor;
+using System.Collections;
 using UnityEngine;
 
 namespace Waypoints
@@ -12,12 +11,12 @@ namespace Waypoints
     public class Node
     {
         public Vector3 Position;
-        public List<Connection> ConnectedNodes;
+        public Connection[] ConnectedNodes;
 
         public Node(Vector3 position)
         {
             Position = position;
-            ConnectedNodes = new List<Connection>();
+            ConnectedNodes = new Connection[0];
         }
     }
 
@@ -60,6 +59,27 @@ namespace Waypoints
         public override int GetHashCode()
         {
             return base.GetHashCode();
+        }
+    }
+
+    public struct ConnectionComparer : IComparer
+    {
+        public Node endNode;
+        public delegate Node GetNode(int index);
+        public GetNode getNode;
+
+        public int Compare(object x, object y)
+        {
+            var a = (Connection)x;
+            var b = (Connection)y;
+            var aCost = a.Cost + WaypointGraph.Heuristic(getNode(a.EndNodeIndex).Position, endNode);
+            var bCost = b.Cost + WaypointGraph.Heuristic(getNode(b.EndNodeIndex).Position, endNode);
+            if (aCost > bCost)
+                return 1;
+            if (aCost < bCost)
+                return -1;
+
+            return 0;
         }
     }
 

@@ -427,7 +427,7 @@ MonoBehaviour:
   m_nodeColor: {r: 0, g: 1, b: 1, a: 1}
   m_staticConnection: {r: 0, g: 1, b: 1, a: 1}
   m_dynamicConnection: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  m_showLog: 0
+  m_showLog: 1
   m_autoRebuild: 1
   m_bulkNodeDistanceGap: 10
   m_bulkSpawnDistance: 4
@@ -436,8 +436,8 @@ MonoBehaviour:
   solidLayerMask:
     serializedVersion: 2
     m_Bits: 256
-  movingObstacleTag: 
-  State: 2
+  movingObstacleTag: Obstacle
+  State: 3
 --- !u!4 &331953856
 Transform:
   m_ObjectHideFlags: 0
@@ -559,7 +559,7 @@ GameObject:
   - component: {fileID: 763082031}
   m_Layer: 8
   m_Name: SOLID (3)
-  m_TagString: Untagged
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -652,7 +652,7 @@ GameObject:
   - component: {fileID: 945849540}
   m_Layer: 8
   m_Name: SOLID (1)
-  m_TagString: Untagged
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -897,7 +897,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1807448151}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 14.29, y: 2.82, z: -16.14}
+  m_LocalPosition: {x: 14.29, y: 2.82, z: -7.79}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -915,6 +915,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d34c14c6b8dda644bba0ce51e53e9b9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  debug: {fileID: 331953855}
   m_repathTime: 1
 --- !u!1 &1828700215
 GameObject:
@@ -1005,7 +1006,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1828700215}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -3.57, y: 8.01, z: -6.31}
+  m_LocalPosition: {x: -1.4, y: 3.82, z: -0.78}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -1038,7 +1039,7 @@ GameObject:
   - component: {fileID: 2099745418}
   m_Layer: 8
   m_Name: Cube
-  m_TagString: Untagged
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

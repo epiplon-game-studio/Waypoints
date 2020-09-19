@@ -1,7 +1,5 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 
 namespace Waypoints
