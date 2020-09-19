@@ -183,20 +183,15 @@ namespace Waypoints
             DateTime clockStart = DateTime.Now;
             //==============
 
-            //float startMin = graph.AllNodes.Min(n => Vector3.Distance(start, n.Position));
-            //Node startNode = graph.AllNodes.Find(n => Vector3.Distance(start, n.Position) <= startMin);
-
-            //float endMin = graph.AllNodes.Min(n => Vector3.Distance(end, n.Position));
-            //Node endNode = graph.AllNodes.Find(n => Vector3.Distance(end, n.Position) <= endMin);
             Node startNode = FindClosestNode(start);
             Node endNode = FindClosestNode(end);
 
-            // could not find a path 
-            if (startNode == null || endNode == null)
-                return new List<Connection>();
-
             List<Connection> path = new List<Connection>();
             List<Node> visited = new List<Node>();
+
+            // could not find a path 
+            if (startNode == null || endNode == null)
+                return path;
 
             // create a temporary connection to the starting node
             var startConnection = new Connection() { EndNodeIndex = graph.AllNodes.IndexOf(startNode) };
@@ -252,18 +247,26 @@ namespace Waypoints
             bool hitBackfaces = Physics.queriesHitBackfaces;
             Physics.queriesHitBackfaces = true;
 
-            List<Node> visibleNodes = new List<Node>();
+            Node closestNode = null;
             for (int i = 0; i < graph.AllNodes.Count; i++)
             {
                 // didn't hit a solid surface
                 if (!Physics.Linecast(position, graph.AllNodes[i].Position, solidLayerMask))
-                    visibleNodes.Add(graph.AllNodes[i]);
+                {
+                    if (closestNode == null)
+                        closestNode = graph.AllNodes[i];
+                    else
+                    {
+                        if (Vector3.Distance(graph.AllNodes[i].Position, position) 
+                            < Vector3.Distance(closestNode.Position, position))
+                            closestNode = graph.AllNodes[i];
+                    }
+                }
             }
 
             Physics.queriesHitBackfaces = hitBackfaces;
 
-            return visibleNodes.OrderBy(n => Vector3.Distance(n.Position, position))
-                .FirstOrDefault();
+            return closestNode;
         }
 
         #endregion
