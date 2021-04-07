@@ -3,7 +3,7 @@
     "displayName": "Waypoints",
     "description": "Draw waypoints to use with pathfinding tools",
     "unity": "2019.4",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "category": "editor extensions",
     "dependencies": {},
     "repository": {
@@ -11,7 +11,7 @@
         "url": "git+https://github.com/epiplon-game-studio/Waypoints.git"
     },
     "author": {
-        "name": "Vinícius Castanheira",
+        "name": "Vinicius Castanheira",
         "email": "epiplonstudio@pm.me",
         "url": "https://github.com/epiplon-game-studio/Waypoints"
     },
