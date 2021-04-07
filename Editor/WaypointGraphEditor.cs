@@ -15,13 +15,7 @@ namespace Waypoints.Editor
         SerializedProperty graphProperty, movingObstacleTag, autoRebuild, graphState;
         WaypointGraph graph;
 
-        Node currentNode = null;
-        //int selectedIndex = -1;
-
         List<Node> selectedNodes = new List<Node>();
-
-        bool showNodes = true;
-        float labelSize = 40f;
 
         BulkControl bulkControl = null;
 
@@ -30,7 +24,7 @@ namespace Waypoints.Editor
 
         private void OnEnable()
         {
-            graphProperty = serializedObject.FindProperty("graph");
+            graphProperty = serializedObject.FindProperty("_graph");
             movingObstacleTag = serializedObject.FindProperty("movingObstacleTag");
             autoRebuild = serializedObject.FindProperty("m_autoRebuild");
             graphState = serializedObject.FindProperty("State");
@@ -205,8 +199,6 @@ namespace Waypoints.Editor
         void EditingNodes()
         {
             // select handle control
-            
-
             var nodelist = graph.GetNodes();
             for (int i = 0; i < nodelist.Count; i++)
             {
@@ -250,6 +242,7 @@ namespace Waypoints.Editor
                         Vector3 offset = newPosition - median;
                         selectedNodes[p].Position += offset;
                     }
+                    graph.RebuildNodegraph();
                 }
             }
         }

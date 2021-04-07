@@ -19,7 +19,17 @@ namespace Waypoints
         }
 
         [SerializeField, HideInInspector]
-        public Graph graph;
+        private Graph _graph;
+        public Graph MainGraph
+        {
+            get
+            {
+                if (_graph == null)
+                    _graph = new Graph();
+
+                return _graph;
+            }
+        }
 
         [Header("Node Settings")]
         public string m_nodegraphLabel;
@@ -28,13 +38,13 @@ namespace Waypoints
         public QueryTriggerInteraction m_hitTriggers;
         [Tooltip("For removing nodes")]
         public float m_brushRadius = 3f;
+        public bool m_autoRebuild = true;
 
         [Header("Editor")]
         public Color m_nodeColor = Color.cyan;
         public Color m_staticConnection = Color.cyan;
         public Color m_dynamicConnection = Color.yellow;
         public bool m_showLog;
-        public bool m_autoRebuild = true;
 
         [Space]
         public int m_bulkNodeDistanceGap = 3;
@@ -46,9 +56,12 @@ namespace Waypoints
         public LayerMask solidLayerMask;
         [HideInInspector] public string movingObstacleTag;
 
+        ConnectionComparer connectionComparer;
+
         private void Awake()
         {
             graphs.Add(this);
+            connectionComparer = new ConnectionComparer() { getNode = GetNode };
         }
 
         public void PrintLog(string message)
@@ -66,49 +79,34 @@ namespace Waypoints
 
         public void AddNode(Vector3 position)
         {
-            if (graph == null)
-            {
-                Debug.LogError("No Graph is set on the " + gameObject.name + " object.");
-                return;
-            }
-
-            if (graph.AllNodes == null)
-                graph.AllNodes = new List<Node>();
-
             var newNode = new Node(position + Vector3.up * m_nodeUpOffset);
-            graph.AllNodes.Add(newNode);
+            MainGraph.AllNodes.Add(newNode);
         }
 
         public void ClearNodes()
         {
-            graph.AllNodes.Clear();
+            MainGraph.AllNodes.Clear();
         }
 
         public void RemoveNode(int i)
         {
-            if (graph == null)
-            {
-                Debug.LogError("No Graph is set on the " + gameObject.name + " object.");
-                return;
-            }
-
-            if (graph.AllNodes.Count == 0)
+            if (MainGraph.AllNodes.Count == 0)
             {
                 Debug.LogWarning("No nodes to remove.");
                 return;
             }
 
-            graph.AllNodes.RemoveAt(i);
+            MainGraph.AllNodes.RemoveAt(i);
         }
 
         public Node GetNode(int index)
         {
-            return graph.GetNode(index);
+            return MainGraph.GetNode(index);
         }
 
         public List<Node> GetNodes()
         {
-            return graph.AllNodes;
+            return MainGraph.AllNodes;
         }
 
         public void RebuildNodegraph()
@@ -117,29 +115,28 @@ namespace Waypoints
             Physics.queriesHitBackfaces = true;
             RaycastHit[] hits = new RaycastHit[8];
 
-            for (int i = 0; i < graph.AllNodes.Count; i++)
+            for (int i = 0; i < MainGraph.AllNodes.Count; i++)
             {
-                var overlapped = Physics.OverlapSphere(graph.AllNodes[i].Position, m_nodeSize, solidLayerMask, m_hitTriggers);
+                var overlapped = Physics.OverlapSphere(MainGraph.AllNodes[i].Position, m_nodeSize, solidLayerMask, m_hitTriggers);
                 if (overlapped.Count() > 0)
                 {
-                    graph.AllNodes[i].ConnectedNodes.Clear();
+                    MainGraph.AllNodes[i].ConnectedNodes = new Connection[0];
                     PrintLog("Found node overlap.");
                     continue;
                 }
 
-                var connectedNodes = graph.AllNodes.Where(n => graph.AllNodes[i] != n)
-                    .Where(n => Vector3.Distance(graph.AllNodes[i].Position, n.Position) < m_nodeMaximumDistance)
+                var connectedNodes = MainGraph.AllNodes.Where(n => MainGraph.AllNodes[i] != n)
+                    .Where(n => Vector3.Distance(MainGraph.AllNodes[i].Position, n.Position) < m_nodeMaximumDistance)
                     .Select(n =>
                     {
                         var connection = new Connection();
                         connection.StartNodeIndex = i;
-                        connection.EndNodeIndex = graph.AllNodes.IndexOf(n);
-                        connection.Cost = Vector3.Distance(graph.AllNodes[i].Position, n.Position);
+                        connection.EndNodeIndex = MainGraph.AllNodes.IndexOf(n);
+                        connection.Cost = Vector3.Distance(MainGraph.AllNodes[i].Position, n.Position);
 
                         // tries to find something between the nodes
-                        var diff = (n.Position - graph.AllNodes[i].Position);
-                        //if (Physics.Linecast(graph.AllNodes[i].Position, n.Position, out hit, solidLayerMask))
-                        var n_hits = Physics.RaycastNonAlloc(graph.AllNodes[i].Position, diff.normalized, 
+                        var diff = (n.Position - MainGraph.AllNodes[i].Position);
+                        var n_hits = Physics.RaycastNonAlloc(MainGraph.AllNodes[i].Position, diff.normalized,
                             hits, diff.magnitude, solidLayerMask, m_hitTriggers);
                         if (n_hits > 0)
                         {
@@ -163,7 +160,7 @@ namespace Waypoints
                     })
                     .Where(c => c.Type != ConnectionType.Null);
 
-                graph.AllNodes[i].ConnectedNodes = connectedNodes.ToList();
+                MainGraph.AllNodes[i].ConnectedNodes = connectedNodes.ToArray();
             }
 
             Physics.queriesHitBackfaces = hitBackfaces;
@@ -177,29 +174,24 @@ namespace Waypoints
         /// <returns>Path</returns>
         public List<Connection> QueryPath(Vector3 start, Vector3 end)
         {
-            if (graph == null || graph.AllNodes.Count == 0)
+            if (MainGraph.AllNodes.Count == 0)
                 return new List<Connection>();
 
             DateTime clockStart = DateTime.Now;
             //==============
 
-            //float startMin = graph.AllNodes.Min(n => Vector3.Distance(start, n.Position));
-            //Node startNode = graph.AllNodes.Find(n => Vector3.Distance(start, n.Position) <= startMin);
-
-            //float endMin = graph.AllNodes.Min(n => Vector3.Distance(end, n.Position));
-            //Node endNode = graph.AllNodes.Find(n => Vector3.Distance(end, n.Position) <= endMin);
             Node startNode = FindClosestNode(start);
             Node endNode = FindClosestNode(end);
-
-            // could not find a path 
-            if (startNode == null || endNode == null)
-                return new List<Connection>();
 
             List<Connection> path = new List<Connection>();
             List<Node> visited = new List<Node>();
 
+            // could not find a path 
+            if (startNode == null || endNode == null)
+                return path;
+
             // create a temporary connection to the starting node
-            var startConnection = new Connection() { EndNodeIndex = graph.AllNodes.IndexOf(startNode) };
+            var startConnection = new Connection() { EndNodeIndex = MainGraph.AllNodes.IndexOf(startNode) };
             path = Search(startConnection, endNode, ref path, ref visited);
 
             //=============
@@ -209,6 +201,7 @@ namespace Waypoints
 
             return path;
         }
+
 
         /// <summary>
         /// Executes the pathfinding recursive search function
@@ -220,13 +213,15 @@ namespace Waypoints
         /// <returns></returns>
         private List<Connection> Search(Connection connection, Node endNode, ref List<Connection> path, ref List<Node> visited)
         {
-            var node = graph.GetNode(connection.EndNodeIndex);
+            var node = MainGraph.GetNode(connection.EndNodeIndex);
             path.Add(connection);
             visited.Add(node);
 
-            foreach (var childConnect in node.ConnectedNodes.OrderBy(c => c.Cost + heuristic(c.EndNodeIndex, endNode)))
+            connectionComparer.endNode = endNode;
+            Array.Sort(node.ConnectedNodes, connectionComparer);
+            foreach (var childConnect in node.ConnectedNodes)
             {
-                Node child = graph.GetNode(childConnect.EndNodeIndex);
+                Node child = MainGraph.GetNode(childConnect.EndNodeIndex);
 
                 // don't let it go to the same path
                 if (visited.Contains(child))
@@ -235,16 +230,16 @@ namespace Waypoints
                     path = Search(childConnect, endNode, ref path, ref visited);
             }
 
-            var lastNode = graph.GetNode(path.Last().EndNodeIndex);
+            var lastNode = MainGraph.GetNode(path[path.Count - 1].EndNodeIndex);
             if (lastNode != endNode)
                 path.RemoveAt(path.Count - 1);
 
             return path;
         }
 
-        private float heuristic(int nodeIndex, Node goal)
+        public static float Heuristic(Vector3 nodePosition, Node goal)
         {
-            return Vector3.Distance(goal.Position, GetNode(nodeIndex).Position);
+            return Vector3.Distance(goal.Position, nodePosition);
         }
 
         private Node FindClosestNode(Vector3 position)
@@ -252,18 +247,26 @@ namespace Waypoints
             bool hitBackfaces = Physics.queriesHitBackfaces;
             Physics.queriesHitBackfaces = true;
 
-            List<Node> visibleNodes = new List<Node>();
-            for (int i = 0; i < graph.AllNodes.Count; i++)
+            Node closestNode = null;
+            for (int i = 0; i < MainGraph.AllNodes.Count; i++)
             {
                 // didn't hit a solid surface
-                if (!Physics.Linecast(position, graph.AllNodes[i].Position, solidLayerMask))
-                    visibleNodes.Add(graph.AllNodes[i]);
+                if (!Physics.Linecast(position, MainGraph.AllNodes[i].Position, solidLayerMask))
+                {
+                    if (closestNode == null)
+                        closestNode = MainGraph.AllNodes[i];
+                    else
+                    {
+                        if (Vector3.Distance(MainGraph.AllNodes[i].Position, position)
+                            < Vector3.Distance(closestNode.Position, position))
+                            closestNode = MainGraph.AllNodes[i];
+                    }
+                }
             }
 
             Physics.queriesHitBackfaces = hitBackfaces;
 
-            return visibleNodes.OrderBy(n => Vector3.Distance(n.Position, position))
-                .FirstOrDefault();
+            return closestNode;
         }
 
         #endregion
@@ -288,17 +291,17 @@ namespace Waypoints
 
         void DrawNodegraph()
         {
-            if (graph)
+            if (MainGraph)
             {
-                if (graph.AllNodes != null)
+                if (MainGraph.AllNodes != null)
                 {
-                    foreach (var n in graph.AllNodes)
+                    foreach (var n in MainGraph.AllNodes)
                     {
                         Gizmos.color = m_nodeColor;
                         Gizmos.DrawCube(n.Position, Vector3.one * m_nodeSize);
                         foreach (var c in n.ConnectedNodes)
                         {
-                            var node = graph.GetNode(c.EndNodeIndex);
+                            var node = MainGraph.GetNode(c.EndNodeIndex);
                             if (node != null)
                             {
                                 switch (c.Type)
