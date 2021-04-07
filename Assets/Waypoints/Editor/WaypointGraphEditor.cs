@@ -24,7 +24,7 @@ namespace Waypoints.Editor
 
         private void OnEnable()
         {
-            graphProperty = serializedObject.FindProperty("graph");
+            graphProperty = serializedObject.FindProperty("_graph");
             movingObstacleTag = serializedObject.FindProperty("movingObstacleTag");
             autoRebuild = serializedObject.FindProperty("m_autoRebuild");
             graphState = serializedObject.FindProperty("State");
