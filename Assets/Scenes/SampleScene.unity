@@ -418,12 +418,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f7bf855f00871941ac9a4a41846c2b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  graph: {fileID: 11400000, guid: aafa9fe2771f9e640b1077a663b80f16, type: 2}
+  MainGraph: {fileID: 0}
   m_nodegraphLabel: 
   m_nodeMaximumDistance: 4
   m_nodeSize: 0.25
   m_hitTriggers: 0
   m_brushRadius: 1
+  m_autoRebuild: 1
   m_nodeColor: {r: 0, g: 1, b: 1, a: 1}
   m_staticConnection: {r: 0, g: 1, b: 1, a: 1}
   m_dynamicConnection: {r: 1, g: 0.9203187, b: 0, a: 1}
@@ -431,12 +432,12 @@ MonoBehaviour:
   m_bulkNodeDistanceGap: 10
   m_bulkSpawnDistance: 4
   m_nodeUpOffset: 0.53
-  m_alwaysShowNodes: 0
+  m_alwaysShowNodes: 1
   solidLayerMask:
     serializedVersion: 2
     m_Bits: 256
   movingObstacleTag: Obstacle
-  State: 3
+  State: 2
 --- !u!4 &331953856
 Transform:
   m_ObjectHideFlags: 0
@@ -723,13 +724,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 945849539}
-  m_LocalRotation: {x: -0, y: -0.70710576, z: -0, w: 0.70710784}
-  m_LocalPosition: {x: 7.13, y: 3.4, z: -11.05}
+  m_LocalRotation: {x: -0, y: -0.15889794, z: -0, w: 0.98729503}
+  m_LocalPosition: {x: 8.08, y: 3.4, z: -12.41}
   m_LocalScale: {x: 2.6510906, y: 3.0149317, z: 8.845837}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 8
-  m_LocalEulerAnglesHint: {x: 0, y: -90.00001, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -18.286001, z: 0}
 --- !u!1 &960097128
 GameObject:
   m_ObjectHideFlags: 0
@@ -896,7 +897,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1807448151}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 14.29, y: 2.82, z: -7.79}
+  m_LocalPosition: {x: 12.13, y: 2.82, z: -2.71}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
