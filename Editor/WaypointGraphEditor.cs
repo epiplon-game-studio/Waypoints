@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Waypoints.Editor
 {
-    [UnityEditor.CustomEditor(typeof(WaypointGraph))]
+    [CustomEditor(typeof(WaypointGraph))]
     public class WaypointGraphEditor : UnityEditor.Editor
     {
         Event e => Event.current;
@@ -24,7 +24,7 @@ namespace Waypoints.Editor
 
         private void OnEnable()
         {
-            graphProperty = serializedObject.FindProperty("_graph");
+            graphProperty = serializedObject.FindProperty("MainGraph");
             movingObstacleTag = serializedObject.FindProperty("movingObstacleTag");
             autoRebuild = serializedObject.FindProperty("m_autoRebuild");
             graphState = serializedObject.FindProperty("State");
@@ -43,12 +43,12 @@ namespace Waypoints.Editor
 
         public override void OnInspectorGUI()
         {
-            base.OnInspectorGUI();
-
-            movingObstacleTag.stringValue = EditorGUILayout.TagField("Obstacle Tag", movingObstacleTag.stringValue);
-
             if (graphProperty.objectReferenceValue != null)
             {
+                base.OnInspectorGUI();
+
+                movingObstacleTag.stringValue = EditorGUILayout.TagField("Obstacle Tag", movingObstacleTag.stringValue);
+
                 Color originalColor = GUI.color;
                 EditorGUILayout.Space();
 
@@ -60,13 +60,28 @@ namespace Waypoints.Editor
                     graph.RebuildNodegraph();
                     SceneView.RepaintAll();
                 }
-
-                serializedObject.ApplyModifiedPropertiesWithoutUndo();
             }
+            else
+            {
+                graphProperty.objectReferenceValue = EditorGUILayout.ObjectField("Graph", graphProperty.objectReferenceValue, typeof(Graph), allowSceneObjects: false);
+                EditorGUILayout.HelpBox("Create a graph or add here.", MessageType.Error, wide: true);
+                if (GUILayout.Button("Create new Graph"))
+                {
+                    string path = EditorUtility.SaveFilePanelInProject("Create new Graph", "New Graph", "asset", "Create a new Graph asset");
+                    Graph newGraph = CreateInstance<Graph>();
+                    AssetDatabase.CreateAsset(newGraph, path);
+                    graphProperty.objectReferenceValue = AssetDatabase.LoadAssetAtPath(path, typeof(Graph));
+                }
+            }
+
+            serializedObject.ApplyModifiedPropertiesWithoutUndo();
         }
 
         private void OnSceneGUI()
         {
+            if (graphProperty.objectReferenceValue == null)
+                return;
+
             Tools.current = Tool.None;
 
             Handles.BeginGUI();

@@ -18,18 +18,7 @@ namespace Waypoints
             return graphs.FirstOrDefault(n => n.m_nodegraphLabel.Equals(label));
         }
 
-        [SerializeField, HideInInspector]
-        private Graph _graph;
-        public Graph MainGraph
-        {
-            get
-            {
-                if (_graph == null)
-                    _graph = new Graph();
-
-                return _graph;
-            }
-        }
+        public Graph MainGraph;
 
         [Header("Node Settings")]
         public string m_nodegraphLabel;
