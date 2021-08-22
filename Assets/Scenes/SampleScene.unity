@@ -418,7 +418,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f7bf855f00871941ac9a4a41846c2b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MainGraph: {fileID: 0}
+  MainGraph: {fileID: 11400000, guid: 854ef4cd9f442614aabf73185579d1f0, type: 2}
   m_nodegraphLabel: 
   m_nodeMaximumDistance: 4
   m_nodeSize: 0.25
