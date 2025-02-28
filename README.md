@@ -1,7 +1,3 @@
-<h1>As of September 12, 2023, Unity announced a recent change in their pricing business model, where you can read it <a href="https://blog.unity.com/news/plan-pricing-and-packaging-updates">here.</a> Because of those changes, I'll no longer update or give support for this package, only respond questions on how it works. The repository is being archived for reference purposes.</h1>
-
-
-
 # Waypoints
 
 A simple 3D waypoint system and pathfinding tool with graphs.
